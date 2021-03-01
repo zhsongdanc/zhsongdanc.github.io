@@ -1,0 +1,140 @@
+<head>
+	<style>
+		h1{
+			color:limeGreen;
+		}
+		h2{
+			color:limeGreen;
+		}
+	</style>
+	<script>
+	function Boy(){  	
+		this.girlfriend=-1; //表示初始时女朋友为-1号，即没有
+		this.single=true;   //单身
+		this.rank=[];       //心中排名
+		this.last_single=true;  //表示下一轮要表白的男生，用以区分在一轮中被绿的男生（被绿的男生在该轮不再表白）
+	}
+	function Girl(){   
+	    
+		this.boyfriend=-1;  //表示初始时男朋友为-1号，即没有
+		this.single=true;   //单身
+		this.rank=[];       //心中排名
+	}
+	</script>
+</head>
+<body background="http://imgfs.oppo.cn/uploads/thread/attachment/2018/01/08/15153881417735.gif">
+<h1>稳定匹配算法之婚姻搭配</h1>
+	<h2 id="instruction">10个男孩与10个女孩匹配</h2>
+	<button id="button_id" style="width:100px;height:40px" onclick="match()" >匹配一次</button>
+	<p id="id_boy"></p>
+	<p id="id_girl"></p>
+	<p id="res" style="font-weight:bold"></p>
+	<script>
+	function match(){	
+		matchFlag=true;
+		serialNumber++;
+		document.getElementById("res").innerHTML+="第"+serialNumber+"次匹配：";
+		for(var i=0;i<10;i++){
+			if(boys[i].single==true){
+				boys[i].last_single=true;
+			}
+			else{
+				boys[i].last_single=false;
+			}
+		}  
+		for(var i=0;i<10;i++){
+			if(boys[i].single==true&&boys[i].last_single==true){
+				var temp=boys[i].rank[0];        //男孩心中排名第一的女孩
+				var temp_boyfriend=girls[temp].boyfriend;       //男孩心中排名第一的女孩的男朋友
+				var temp_boyfriend_rank=(girls[temp]).rank.indexOf(temp_boyfriend);  
+				if(girls[temp].single==true){    //女孩没有男朋友时
+					boys[i].single=false;        //双双脱单
+					boys[i].girlfriend=temp;
+					girls[temp].single=false;
+					girls[temp].boyfriend=i;
+				}                                           //劈腿
+				else if(girls[temp].single==false&&((girls[temp]).rank.indexOf(i))<temp_boyfriend_rank){  
+					console.log("大小是："+(girls[temp]).rank.indexOf(i)+"   "+temp_boyfriend_rank);
+					console.log("成功劈腿");
+					boys[temp_boyfriend].single=true;
+					boys[temp_boyfriend].rank.shift();
+					boys[temp_boyfriend].girlfriend=-1;   //被绿了
+					girls[temp].boyfriend=i;              //换男友
+					boys[i].single=false;                 //竞争女友成功
+					boys[i].girlfriend=temp;               
+				}
+				else{
+					boys[i].rank.shift();           //去表白但因竞争力不够而无效
+				}
+			}
+			    
+		}
+		document.getElementById("res").innerHTML+="<br>";
+		for(var j=0;j<10;j++){
+			if(boys[j].single==false){	
+				document.getElementById("res").innerHTML+=(j)+"号男孩与"+(boys[j].girlfriend)+"号女孩匹配成功"+"<br>";
+			}	
+		}
+		for(var j=0;j<10;j++){
+			if(boys[j].last_single==true&&boys[j].single==true){	
+				document.getElementById("res").innerHTML+=(j)+"号男孩没有匹配成功"+"<br>";
+			}	
+		}
+		for(var j=0;j<10;j++){
+			if(boys[j].last_single==false&&boys[j].single==true){	
+				document.getElementById("res").innerHTML+=(j)+"号男孩被分手"+"<br>";
+			}	
+		}
+		for(var k=0;k<10;k++){
+			console.log(boys[k].single);
+			if(boys[k].single==true){
+				matchFlag=false;
+				break;
+			}   
+		}
+		if(matchFlag==true){
+			document.getElementById("button_id").setAttribute("disabled",true);
+		}
+	}
+	var matchFlag = true;  //该变量为真时一直匹配
+	var serialNumber =0;       //表示第几次匹配
+	var girls = new Array();
+	var boys = new Array();
+	var boyNumber = [];        //存放0到9;
+	var girlNumber = []; 
+	for(var i=0;i<10;i++){
+		boyNumber[i] = new Array();
+		girlNumber[i] = new Array();
+	}
+	for(var i=0;i<10;i++){
+		for(var j=0;j<10;j++){
+			boyNumber[i].push(j);
+			girlNumber[i].push(j);
+		}
+	}
+	for(var i=0;i<10;i++){   //初始化n个男孩和n个女孩，并先将他们心中的rank按顺序设为0-9
+		var girl = new Girl();
+		girl.rank=girlNumber[i];	
+		girl.rank.sort(function (){ 
+		return Math.random()-0.5;
+		})
+		girls[i]=girl;
+	}
+	for(var i=0;i<10;i++){ 
+		var boy = new Boy();
+		boy.rank=boyNumber[i];
+		boy.rank.sort(function (){
+		return Math.random()-0.5;
+		})
+		boys[i]=boy;	
+	}
+	console.log("boys");
+	for(var t=0;t<10;t++){
+		console.log(boys[t].rank);
+	}
+	console.log("girls");
+	for(var t=0;t<10;t++){
+		console.log(girls[t].rank);
+	}
+	</script>
+</body>
