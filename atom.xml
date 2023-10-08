@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>事了拂身去 深藏功与名</title>
+  
+  <subtitle>[object Object]</subtitle>
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="https://zhsongdanc.github.io/"/>
+  <updated>2023-10-08T02:32:36.380Z</updated>
+  <id>https://zhsongdanc.github.io/</id>
+  
+  <author>
+    <name>zhsong</name>
+    
+  </author>
+  
+  <generator uri="https://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>DirectedByteBuffer的使用</title>
+    <link href="https://zhsongdanc.github.io/posts/35254.html"/>
+    <id>https://zhsongdanc.github.io/posts/35254.html</id>
+    <published>2023-10-08T02:30:07.000Z</published>
+    <updated>2023-10-08T02:32:36.380Z</updated>
+    
+    <content type="html"><![CDATA[<p>这是第一篇博客</p><ul><li>孙悟空222</li><li>猪八戒</li><li>沙师弟</li></ul><script>        document.querySelectorAll('.github-emoji')          .forEach(el => {            if (!el.dataset.src) { return; }            const img = document.createElement('img');            img.style = 'display:none !important;';            img.src = el.dataset.src;            img.addEventListener('error', () => {              img.remove();              el.style.color = 'inherit';              el.style.backgroundImage = 'none';              el.style.background = 'none';            });            img.addEventListener('load', () => {              img.remove();            });            document.body.appendChild(img);          });      </script>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;这是第一篇博客&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;孙悟空222&lt;/li&gt;
+&lt;li&gt;猪八戒&lt;/li&gt;
+&lt;li&gt;沙师弟&lt;/li&gt;
+&lt;/ul&gt;
+&lt;script&gt;
+        document.querySelectorAll(&#39;.github-emoji&#39;)
+          .f
+      
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>搭建FastDFS环境</title>
+    <link href="https://zhsongdanc.github.io/posts/55499.html"/>
+    <id>https://zhsongdanc.github.io/posts/55499.html</id>
+    <published>2022-07-07T07:42:12.000Z</published>
+    <updated>2023-10-08T02:06:23.553Z</updated>
+    
+    <content type="html"><![CDATA[<p>这是第二篇博客</p><ul><li>孙悟空</li><li>猪八戒</li><li>沙师弟</li></ul><script>        document.querySelectorAll('.github-emoji')          .forEach(el => {            if (!el.dataset.src) { return; }            const img = document.createElement('img');            img.style = 'display:none !important;';            img.src = el.dataset.src;            img.addEventListener('error', () => {              img.remove();              el.style.color = 'inherit';              el.style.backgroundImage = 'none';              el.style.background = 'none';            });            img.addEventListener('load', () => {              img.remove();            });            document.body.appendChild(img);          });      </script>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;这是第二篇博客&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;孙悟空&lt;/li&gt;
+&lt;li&gt;猪八戒&lt;/li&gt;
+&lt;li&gt;沙师弟&lt;/li&gt;
+&lt;/ul&gt;
+&lt;script&gt;
+        document.querySelectorAll(&#39;.github-emoji&#39;)
+          .forE
+      
+    
+    </summary>
+    
+    
+    
+      <category term="分布式中间件" scheme="https://zhsongdanc.github.io/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%AD%E9%97%B4%E4%BB%B6/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>&#39;vmvare三种网络模式&#39;</title>
+    <link href="https://zhsongdanc.github.io/posts/54158.html"/>
+    <id>https://zhsongdanc.github.io/posts/54158.html</id>
+    <published>2022-03-02T15:18:14.000Z</published>
+    <updated>2023-10-08T02:06:23.552Z</updated>
+    
+    <content type="html"><![CDATA[<script>        document.querySelectorAll('.github-emoji')          .forEach(el => {            if (!el.dataset.src) { return; }            const img = document.createElement('img');            img.style = 'display:none !important;';            img.src = el.dataset.src;            img.addEventListener('error', () => {              img.remove();              el.style.color = 'inherit';              el.style.backgroundImage = 'none';              el.style.background = 'none';            });            img.addEventListener('load', () => {              img.remove();            });            document.body.appendChild(img);          });      </script>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;script&gt;
+        document.querySelectorAll(&#39;.github-emoji&#39;)
+          .forEach(el =&gt; {
+            if (!el.dataset.src) { return; }
+        
+      
+    
+    </summary>
+    
+    
+    
+      <category term="linux" scheme="https://zhsongdanc.github.io/tags/linux/"/>
+    
+      <category term="计算机网络" scheme="https://zhsongdanc.github.io/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>&#39;第一篇博客&#39;</title>
+    <link href="https://zhsongdanc.github.io/posts/13058.html"/>
+    <id>https://zhsongdanc.github.io/posts/13058.html</id>
+    <published>2022-02-28T15:52:54.000Z</published>
+    <updated>2023-10-08T02:06:23.553Z</updated>
+    
+    <content type="html"><![CDATA[<p>这是第一篇博客</p><ul><li>孙悟空</li><li>猪八戒</li><li>沙师弟</li></ul><script>        document.querySelectorAll('.github-emoji')          .forEach(el => {            if (!el.dataset.src) { return; }            const img = document.createElement('img');            img.style = 'display:none !important;';            img.src = el.dataset.src;            img.addEventListener('error', () => {              img.remove();              el.style.color = 'inherit';              el.style.backgroundImage = 'none';              el.style.background = 'none';            });            img.addEventListener('load', () => {              img.remove();            });            document.body.appendChild(img);          });      </script>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;这是第一篇博客&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;孙悟空&lt;/li&gt;
+&lt;li&gt;猪八戒&lt;/li&gt;
+&lt;li&gt;沙师弟&lt;/li&gt;
+&lt;/ul&gt;
+&lt;script&gt;
+        document.querySelectorAll(&#39;.github-emoji&#39;)
+          .forE
+      
+    
+    </summary>
+    
+    
+    
+      <category term="-test" scheme="https://zhsongdanc.github.io/tags/test/"/>
+    
+  </entry>
+  
+  <entry>
+    <title>&#39;序言&#39;</title>
+    <link href="https://zhsongdanc.github.io/posts/61229.html"/>
+    <id>https://zhsongdanc.github.io/posts/61229.html</id>
+    <published>2022-02-28T15:49:18.000Z</published>
+    <updated>2023-10-08T02:06:23.553Z</updated>
+    
+    <content type="html"><![CDATA[<script>        document.querySelectorAll('.github-emoji')          .forEach(el => {            if (!el.dataset.src) { return; }            const img = document.createElement('img');            img.style = 'display:none !important;';            img.src = el.dataset.src;            img.addEventListener('error', () => {              img.remove();              el.style.color = 'inherit';              el.style.backgroundImage = 'none';              el.style.background = 'none';            });            img.addEventListener('load', () => {              img.remove();            });            document.body.appendChild(img);          });      </script>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;script&gt;
+        document.querySelectorAll(&#39;.github-emoji&#39;)
+          .forEach(el =&gt; {
+            if (!el.dataset.src) { return; }
+        
+      
+    
+    </summary>
+    
+    
+    
+  </entry>
+  
+  <entry>
+    <title>本博客搭建详细教程</title>
+    <link href="https://zhsongdanc.github.io/posts/6.html"/>
+    <id>https://zhsongdanc.github.io/posts/6.html</id>
+    <published>2019-12-27T12:02:34.000Z</published>
+    <updated>2023-10-08T02:06:23.553Z</updated>
+    
+    <content type="html"><![CDATA[<h2 id="本博客详细教程地址："><a href="#本博客详细教程地址：" class="headerlink" title="本博客详细教程地址："></a>本博客详细教程地址：</h2><p>系列教程：</p><ul><li><a href="http://sitoi.cn/posts/6666.html">基于 Hexo GitHub 从零开始搭建个人博客（一）：环境准备篇</a></li><li><a href="https://sitoi.cn/posts/27801.html">基于 Hexo GitHub 从零开始搭建个人博客（二）：搭建基础篇</a></li><li><a href="https://sitoi.cn/posts/63466.html">基于 Hexo GitHub 从零开始搭建个人博客（三）：Matery 主题（DIY 版）详细配置教程，附博客源码</a></li></ul><script>        document.querySelectorAll('.github-emoji')          .forEach(el => {            if (!el.dataset.src) { return; }            const img = document.createElement('img');            img.style = 'display:none !important;';            img.src = el.dataset.src;            img.addEventListener('error', () => {              img.remove();              el.style.color = 'inherit';              el.style.backgroundImage = 'none';              el.style.background = 'none';            });            img.addEventListener('load', () => {              img.remove();            });            document.body.appendChild(img);          });      </script>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;h2 id=&quot;本博客详细教程地址：&quot;&gt;&lt;a href=&quot;#本博客详细教程地址：&quot; class=&quot;headerlink&quot; title=&quot;本博客详细教程地址：&quot;&gt;&lt;/a&gt;本博客详细教程地址：&lt;/h2&gt;&lt;p&gt;系列教程：&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&quot;http://sit
+      
+    
+    </summary>
+    
+    
+      <category term="Hexo" scheme="https://zhsongdanc.github.io/categories/Hexo/"/>
+    
+    
+      <category term="教程" scheme="https://zhsongdanc.github.io/tags/%E6%95%99%E7%A8%8B/"/>
+    
+      <category term="Hexo" scheme="https://zhsongdanc.github.io/tags/Hexo/"/>
+    
+      <category term="GitHub" scheme="https://zhsongdanc.github.io/tags/GitHub/"/>
+    
+  </entry>
+  
+</feed>
