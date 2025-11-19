@@ -37,8 +37,8 @@
     
     <entry>
       <title>DirectedByteBuffer的使用</title>
-      <link href="/posts/35254.html"/>
-      <url>/posts/35254.html</url>
+      <link href="/posts/70000.html"/>
+      <url>/posts/70000.html</url>
       
         <content type="html"><![CDATA[<p>这是第一篇博客</p><ul><li>孙悟空222</li><li>猪八戒</li><li>沙师弟</li></ul><script>        document.querySelectorAll('.github-emoji')          .forEach(el => {            if (!el.dataset.src) { return; }            const img = document.createElement('img');            img.style = 'display:none !important;';            img.src = el.dataset.src;            img.addEventListener('error', () => {              img.remove();              el.style.color = 'inherit';              el.style.backgroundImage = 'none';              el.style.background = 'none';            });            img.addEventListener('load', () => {              img.remove();            });            document.body.appendChild(img);          });      </script>]]></content>
       
