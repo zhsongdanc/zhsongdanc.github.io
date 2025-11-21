@@ -570,14 +570,14 @@ ConcurrentBag 三层查找机制
                 
                     <div class="post-date info-break-policy">
                         <i class="fa fa-calendar-check-o fa-fw"></i>更新日期:&nbsp;&nbsp;
-                        2025-11-19
+                        2025-11-21
                     </div>
                 
 
                 
                     <div class="info-break-policy">
                         <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        2.7k
+                        2.8k
                     </div>
                 
 
@@ -665,7 +665,7 @@ ProxyConnection
             <span class="token keyword">final</span> <span class="token keyword">long</span> now <span class="token operator">=</span> <span class="token function">currentTime</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
             <span class="token comment" spellcheck="true">// 健康检查</span>
             <span class="token keyword">if</span> <span class="token punctuation">(</span>poolEntry<span class="token punctuation">.</span><span class="token function">isMarkedEvicted</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">||</span> 
-                <span class="token punctuation">(</span><span class="token function">elapsedMillis</span><span class="token punctuation">(</span>poolEntry<span class="token punctuation">.</span>lastAccessed<span class="token punctuation">,</span> now<span class="token punctuation">)</span> <span class="token operator">></span> aliveBypassWindowMs 
+                <span class="token punctuation">(</span><span class="token function">elapsedMillis</span><span class="token punctuation">(</span>poolEntry<span class="token punctuation">.</span>lastAccessed<span class="token punctuation">,</span> now<span class="token punctuation">)</span> <span class="token operator">&gt;</span> aliveBypassWindowMs 
                  <span class="token operator">&amp;&amp;</span> <span class="token operator">!</span><span class="token function">isConnectionAlive</span><span class="token punctuation">(</span>poolEntry<span class="token punctuation">.</span>connection<span class="token punctuation">)</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
                 <span class="token comment" spellcheck="true">// 连接不可用，关闭并重试</span>
                 <span class="token function">closeConnection</span><span class="token punctuation">(</span>poolEntry<span class="token punctuation">,</span> <span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -676,7 +676,7 @@ ProxyConnection
                 <span class="token keyword">return</span> poolEntry<span class="token punctuation">.</span><span class="token function">createProxyConnection</span><span class="token punctuation">(</span>
                     leakTaskFactory<span class="token punctuation">.</span><span class="token function">schedule</span><span class="token punctuation">(</span>poolEntry<span class="token punctuation">)</span><span class="token punctuation">,</span> now<span class="token punctuation">)</span><span class="token punctuation">;</span>
             <span class="token punctuation">}</span>
-        <span class="token punctuation">}</span> <span class="token keyword">while</span> <span class="token punctuation">(</span>timeout <span class="token operator">></span> 0L<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        <span class="token punctuation">}</span> <span class="token keyword">while</span> <span class="token punctuation">(</span>timeout <span class="token operator">&gt;</span> 0L<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
         <span class="token comment" spellcheck="true">// 超时，抛出异常</span>
         metricsTracker<span class="token punctuation">.</span><span class="token function">recordBorrowTimeoutStats</span><span class="token punctuation">(</span>startTime<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -740,7 +740,7 @@ ConcurrentBag.requite()
     bagEntry<span class="token punctuation">.</span><span class="token function">setState</span><span class="token punctuation">(</span>STATE_NOT_IN_USE<span class="token punctuation">)</span><span class="token punctuation">;</span>
 
     <span class="token comment" spellcheck="true">// 2. 如果有等待线程，优先放入 handoffQueue 直接交付</span>
-    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> waiters<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">></span> <span class="token number">0</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> <span class="token number">0</span><span class="token punctuation">;</span> waiters<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&gt;</span> <span class="token number">0</span><span class="token punctuation">;</span> i<span class="token operator">++</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
         <span class="token keyword">if</span> <span class="token punctuation">(</span>bagEntry<span class="token punctuation">.</span><span class="token function">getState</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">!=</span> STATE_NOT_IN_USE <span class="token operator">||</span> 
             handoffQueue<span class="token punctuation">.</span><span class="token function">offer</span><span class="token punctuation">(</span>bagEntry<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
             <span class="token keyword">return</span><span class="token punctuation">;</span>
@@ -749,19 +749,19 @@ ConcurrentBag.requite()
     <span class="token punctuation">}</span>
 
     <span class="token comment" spellcheck="true">// 3. 否则放入线程本地列表（最多50个）</span>
-    <span class="token keyword">final</span> List<span class="token operator">&lt;</span>Object<span class="token operator">></span> threadLocalList <span class="token operator">=</span> threadList<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+    <span class="token keyword">final</span> List<span class="token operator">&lt;</span>Object<span class="token operator">&gt;</span> threadLocalList <span class="token operator">=</span> threadList<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token keyword">if</span> <span class="token punctuation">(</span>threadLocalList<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">&lt;</span> <span class="token number">50</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
         threadLocalList<span class="token punctuation">.</span><span class="token function">add</span><span class="token punctuation">(</span>weakThreadLocals <span class="token operator">?</span> 
-            <span class="token keyword">new</span> <span class="token class-name">WeakReference</span><span class="token operator">&lt;</span><span class="token operator">></span><span class="token punctuation">(</span>bagEntry<span class="token punctuation">)</span> <span class="token operator">:</span> bagEntry<span class="token punctuation">)</span><span class="token punctuation">;</span>
+            <span class="token keyword">new</span> <span class="token class-name">WeakReference</span><span class="token operator">&lt;</span><span class="token operator">&gt;</span><span class="token punctuation">(</span>bagEntry<span class="token punctuation">)</span> <span class="token operator">:</span> bagEntry<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <hr>
 <h2 id="ConcurrentBag-三层查找机制"><a href="#ConcurrentBag-三层查找机制" class="headerlink" title="ConcurrentBag 三层查找机制"></a>ConcurrentBag 三层查找机制</h2><h3 id="第一层：线程本地列表（threadList）"><a href="#第一层：线程本地列表（threadList）" class="headerlink" title="第一层：线程本地列表（threadList）"></a>第一层：线程本地列表（threadList）</h3><h4 id="工作原理"><a href="#工作原理" class="headerlink" title="工作原理"></a>工作原理</h4><pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// Try the thread-local list first</span>
-<span class="token keyword">final</span> List<span class="token operator">&lt;</span>Object<span class="token operator">></span> list <span class="token operator">=</span> threadList<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> list<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span> i <span class="token operator">>=</span> <span class="token number">0</span><span class="token punctuation">;</span> i<span class="token operator">--</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+<span class="token keyword">final</span> List<span class="token operator">&lt;</span>Object<span class="token operator">&gt;</span> list <span class="token operator">=</span> threadList<span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
+<span class="token keyword">for</span> <span class="token punctuation">(</span><span class="token keyword">int</span> i <span class="token operator">=</span> list<span class="token punctuation">.</span><span class="token function">size</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">;</span> i <span class="token operator">&gt;=</span> <span class="token number">0</span><span class="token punctuation">;</span> i<span class="token operator">--</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token keyword">final</span> Object entry <span class="token operator">=</span> list<span class="token punctuation">.</span><span class="token function">remove</span><span class="token punctuation">(</span>i<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token keyword">final</span> T bagEntry <span class="token operator">=</span> weakThreadLocals <span class="token operator">?</span> 
-        <span class="token punctuation">(</span><span class="token punctuation">(</span>WeakReference<span class="token operator">&lt;</span>T<span class="token operator">></span><span class="token punctuation">)</span> entry<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">:</span> <span class="token punctuation">(</span>T<span class="token punctuation">)</span> entry<span class="token punctuation">;</span>
+        <span class="token punctuation">(</span><span class="token punctuation">(</span>WeakReference<span class="token operator">&lt;</span>T<span class="token operator">&gt;</span><span class="token punctuation">)</span> entry<span class="token punctuation">)</span><span class="token punctuation">.</span><span class="token function">get</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">:</span> <span class="token punctuation">(</span>T<span class="token punctuation">)</span> entry<span class="token punctuation">;</span>
     <span class="token keyword">if</span> <span class="token punctuation">(</span>bagEntry <span class="token operator">!=</span> null <span class="token operator">&amp;&amp;</span> 
         bagEntry<span class="token punctuation">.</span><span class="token function">compareAndSet</span><span class="token punctuation">(</span>STATE_NOT_IN_USE<span class="token punctuation">,</span> STATE_IN_USE<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
         <span class="token keyword">return</span> bagEntry<span class="token punctuation">;</span>
@@ -789,8 +789,8 @@ ConcurrentBag.requite()
 <span class="token keyword">try</span> <span class="token punctuation">{</span>
     <span class="token keyword">for</span> <span class="token punctuation">(</span>T bagEntry <span class="token operator">:</span> sharedList<span class="token punctuation">)</span> <span class="token punctuation">{</span>
         <span class="token keyword">if</span> <span class="token punctuation">(</span>bagEntry<span class="token punctuation">.</span><span class="token function">compareAndSet</span><span class="token punctuation">(</span>STATE_NOT_IN_USE<span class="token punctuation">,</span> STATE_IN_USE<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
-            <span class="token comment" spellcheck="true">// 如果等待线程数 > 1，触发补偿创建</span>
-            <span class="token keyword">if</span> <span class="token punctuation">(</span>waiting <span class="token operator">></span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
+            <span class="token comment" spellcheck="true">// 如果等待线程数 &gt; 1，触发补偿创建</span>
+            <span class="token keyword">if</span> <span class="token punctuation">(</span>waiting <span class="token operator">&gt;</span> <span class="token number">1</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
                 listener<span class="token punctuation">.</span><span class="token function">addBagItem</span><span class="token punctuation">(</span>waiting <span class="token operator">-</span> <span class="token number">1</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
             <span class="token punctuation">}</span>
             <span class="token keyword">return</span> bagEntry<span class="token punctuation">;</span>
@@ -824,7 +824,7 @@ timeout <span class="token operator">=</span> timeUnit<span class="token punctua
         <span class="token keyword">return</span> bagEntry<span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
     timeout <span class="token operator">-=</span> <span class="token function">elapsedNanos</span><span class="token punctuation">(</span>start<span class="token punctuation">)</span><span class="token punctuation">;</span>
-<span class="token punctuation">}</span> <span class="token keyword">while</span> <span class="token punctuation">(</span>timeout <span class="token operator">></span> 10_000<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<span class="token punctuation">}</span> <span class="token keyword">while</span> <span class="token punctuation">(</span>timeout <span class="token operator">&gt;</span> 10_000<span class="token punctuation">)</span><span class="token punctuation">;</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <h4 id="特点-2"><a href="#特点-2" class="headerlink" title="特点"></a>特点</h4><ul>
 <li><strong>SynchronousQueue</strong>：无缓冲队列，生产者必须等待消费者</li>
 <li><strong>阻塞等待</strong>：在超时内等待新连接</li>
@@ -843,7 +843,7 @@ timeout <span class="token operator">=</span> timeUnit<span class="token punctua
 <li>在这个窗口内再次借出同一连接时，可以跳过昂贵的 <code>isConnectionAlive</code> 检查</li>
 <li>超过窗口时间，需要重新检测连接是否存活</li>
 </ul>
-<h4 id="判断逻辑"><a href="#判断逻辑" class="headerlink" title="判断逻辑"></a>判断逻辑</h4><pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">elapsedMillis</span><span class="token punctuation">(</span>poolEntry<span class="token punctuation">.</span>lastAccessed<span class="token punctuation">,</span> now<span class="token punctuation">)</span> <span class="token operator">></span> aliveBypassWindowMs 
+<h4 id="判断逻辑"><a href="#判断逻辑" class="headerlink" title="判断逻辑"></a>判断逻辑</h4><pre class="line-numbers language-java"><code class="language-java"><span class="token keyword">if</span> <span class="token punctuation">(</span><span class="token function">elapsedMillis</span><span class="token punctuation">(</span>poolEntry<span class="token punctuation">.</span>lastAccessed<span class="token punctuation">,</span> now<span class="token punctuation">)</span> <span class="token operator">&gt;</span> aliveBypassWindowMs 
     <span class="token operator">&amp;&amp;</span> <span class="token operator">!</span><span class="token function">isConnectionAlive</span><span class="token punctuation">(</span>poolEntry<span class="token punctuation">.</span>connection<span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token comment" spellcheck="true">// 连接可能已失效，关闭并重试</span>
     <span class="token function">closeConnection</span><span class="token punctuation">(</span>poolEntry<span class="token punctuation">,</span> DEAD_CONNECTION_MESSAGE<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -892,26 +892,26 @@ timeout <span class="token operator">=</span> timeUnit<span class="token punctua
 <li>真正的代理类在构建时由 <code>JavassistProxyFactory</code> 生成</li>
 <li>生成专用的字节码代理，性能优于 JDK 动态代理</li>
 </ul>
-<h4 id="构建配置"><a href="#构建配置" class="headerlink" title="构建配置"></a>构建配置</h4><pre class="line-numbers language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>plugin</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">></span></span>org.codehaus.mojo<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">></span></span>exec-maven-plugin<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>executions</span><span class="token punctuation">></span></span>
-        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>execution</span><span class="token punctuation">></span></span>
-            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>phase</span><span class="token punctuation">></span></span>compile<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>phase</span><span class="token punctuation">></span></span>
-            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>goals</span><span class="token punctuation">></span></span>
-                <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>goal</span><span class="token punctuation">></span></span>exec<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>goal</span><span class="token punctuation">></span></span>
-            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>goals</span><span class="token punctuation">></span></span>
-        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>execution</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>executions</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>configuration</span><span class="token punctuation">></span></span>
-        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>executable</span><span class="token punctuation">></span></span>java<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>executable</span><span class="token punctuation">></span></span>
-        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>arguments</span><span class="token punctuation">></span></span>
-            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>argument</span><span class="token punctuation">></span></span>-cp<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>argument</span><span class="token punctuation">></span></span>
-            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>argument</span><span class="token punctuation">></span></span>...<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>argument</span><span class="token punctuation">></span></span>
-            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>argument</span><span class="token punctuation">></span></span>com.zaxxer.hikari.util.JavassistProxyFactory<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>argument</span><span class="token punctuation">></span></span>
-        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>arguments</span><span class="token punctuation">></span></span>
-    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>configuration</span><span class="token punctuation">></span></span>
-<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>plugin</span><span class="token punctuation">></span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
+<h4 id="构建配置"><a href="#构建配置" class="headerlink" title="构建配置"></a>构建配置</h4><pre class="line-numbers language-xml"><code class="language-xml"><span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>plugin</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>groupId</span><span class="token punctuation">&gt;</span></span>org.codehaus.mojo<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>groupId</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>artifactId</span><span class="token punctuation">&gt;</span></span>exec-maven-plugin<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>artifactId</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>executions</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>execution</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>phase</span><span class="token punctuation">&gt;</span></span>compile<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>phase</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>goals</span><span class="token punctuation">&gt;</span></span>
+                <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>goal</span><span class="token punctuation">&gt;</span></span>exec<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>goal</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>goals</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>execution</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>executions</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>configuration</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>executable</span><span class="token punctuation">&gt;</span></span>java<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>executable</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>arguments</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>argument</span><span class="token punctuation">&gt;</span></span>-cp<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>argument</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>argument</span><span class="token punctuation">&gt;</span></span>...<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>argument</span><span class="token punctuation">&gt;</span></span>
+            <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;</span>argument</span><span class="token punctuation">&gt;</span></span>com.zaxxer.hikari.util.JavassistProxyFactory<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>argument</span><span class="token punctuation">&gt;</span></span>
+        <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>arguments</span><span class="token punctuation">&gt;</span></span>
+    <span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>configuration</span><span class="token punctuation">&gt;</span></span>
+<span class="token tag"><span class="token tag"><span class="token punctuation">&lt;/</span>plugin</span><span class="token punctuation">&gt;</span></span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <hr>
 <h2 id="常见问题解答"><a href="#常见问题解答" class="headerlink" title="常见问题解答"></a>常见问题解答</h2><h3 id="Q1-为什么线程本地列表是-List-而不是单个连接？"><a href="#Q1-为什么线程本地列表是-List-而不是单个连接？" class="headerlink" title="Q1: 为什么线程本地列表是 List 而不是单个连接？"></a>Q1: 为什么线程本地列表是 List 而不是单个连接？</h3><p><strong>A:</strong> 虽然大多数情况下线程只需要一个连接，但：</p>
 <ol>
@@ -1251,27 +1251,28 @@ timeout <span class="token operator">=</span> timeUnit<span class="token punctua
                 <div class="article-badge left-badge text-color">
                     <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
                 <div class="card">
-                    <a href="/posts/37393.html">
+                    <a href="/posts/43494.html">
                         <div class="card-image">
                             
                                 
-                                <img src="/medias/featureimages/15.jpg" class="responsive-img" alt="SpringBoot事务实现原理">
+                                <img src="/medias/featureimages/12.jpg" class="responsive-img" alt="下一个">
                             
-                            <span class="card-title">SpringBoot事务实现原理</span>
+                            <span class="card-title">下一个</span>
                         </div>
                     </a>
                     <div class="card-content article-content">
                         <div class="summary block-with-text">
                             
-                                
+                                105
+
         document.querySelectorAll('.github-emoji')
           .forEach(el => {
-            if (!el.dataset.src) { return
+            if (!el.dataset.src) { re
                             
                         </div>
                         <div class="publish-info">
                         <span class="publish-date">
-                            <i class="fa fa-clock-o fa-fw icon-date"></i>2025-11-19
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2025-11-21
                         </span>
                             <span class="publish-author">
                                 
@@ -1291,21 +1292,23 @@ timeout <span class="token operator">=</span> timeUnit<span class="token punctua
                     下一篇&nbsp;<i class="fa fa-chevron-right"></i>
                 </div>
                 <div class="card">
-                    <a href="/posts/27340.html">
+                    <a href="/posts/9294.html">
                         <div class="card-image">
                             
                                 
-                                <img src="/medias/featureimages/15.jpg" class="responsive-img" alt="rocketmq探秘">
+                                <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="本博客搭建详细教程">
                             
-                            <span class="card-title">rocketmq探秘</span>
+                            <span class="card-title">本博客搭建详细教程</span>
                         </div>
                     </a>
                     <div class="card-content article-content">
                         <div class="summary block-with-text">
                             
-                                rocketmq 服务端如何处理发送消息请求rocketmq 服务端如何处理发消费者拉取请求
-        document.querySelectorAll('.github-emoji')
-          .forEach(el 
+                                本博客详细教程地址：系列教程：
+
+基于 Hexo GitHub 从零开始搭建个人博客（一）：环境准备篇
+基于 Hexo GitHub 从零开始搭建个人博客（二）：搭建基础篇
+基于 Hexo GitHub 从零开始搭建个人博客（三）：Mate
                             
                         </div>
                         <div class="publish-info">
@@ -1315,19 +1318,11 @@ timeout <span class="token operator">=</span> timeUnit<span class="token punctua
                             <span class="publish-author">
                                 
                                     <i class="fa fa-user fa-fw"></i>
-                                    demussong
+                                    zhsong
                                 
                             </span>
                         </div>
                     </div>
-                    
-                        <div class="card-action article-tags">
-                            
-                                <a href="/tags/%E5%88%86%E5%B8%83%E5%BC%8F%E4%B8%AD%E9%97%B4%E4%BB%B6/">
-                                    <span class="chip bg-color">分布式中间件</span>
-                                </a>
-                            
-                        </div>
                     
                 </div>
             </div>
@@ -1492,7 +1487,7 @@ timeout <span class="token operator">=</span> timeUnit<span class="token punctua
             
                 
                     &nbsp;<i class="fa fa-area-chart"></i>&nbsp;站点总字数:&nbsp;<span
-                            class="white-color">6k</span>&nbsp;字
+                            class="white-color">12.1k</span>&nbsp;字
                 
                 
                     <span id="icp"><img src="/medias/icp.png" style="vertical-align: text-bottom;" alt="icp"/>
