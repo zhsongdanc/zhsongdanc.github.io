@@ -664,19 +664,91 @@
 <script src="/libs/aplayer/APlayer.min.js"></script>
 <script>
     $(function () {
-        new APlayer({
-            container: document.getElementById('aplayer'),
-            fixed: 'false' === 'true',
-            autoplay: 'true' === 'true',
-            theme: '#542674',
-            loop: 'all',
-            order: 'list',
-            preload: 'auto',
-            volume: Number('0.7'),
-            listFolded: 'false' === 'true',
-            listMaxHeight: '197px',
-            audio: JSON.parse('[{"name":"贝加尔湖畔","artist":"李健","url":"http://music.163.com/song/media/outer/url?id=109998.mp3","cover":"http://p1.music.126.net/vSdrZFQn3uMetLL_j3AnQg==/109951163432562414.jpg?param=130y130"}]')
-        });
+        try {
+            var audioList = JSON.parse('[{"name":"旅人","artist":"王铮亮","neteaseId":"2740113271","cover":"https://p1.music.126.net/vSdrZFQn3uMetLL_j3AnQg==/109951163432562414.jpg?param=130y130"}]');
+            var finalAudioList = [];
+            var neteaseCount = 0;
+            var loadedCount = 0;
+            
+            // 统计需要从 API 获取的歌曲数量
+            for (var i = 0; i < audioList.length; i++) {
+                if (audioList[i].neteaseId) {
+                    neteaseCount++;
+                } else if (audioList[i].url && !audioList[i].url.includes('music.163.com/outchain/player')) {
+                    finalAudioList.push(audioList[i]);
+                }
+            }
+            
+            // 初始化播放器函数
+            function initPlayer() {
+                if (finalAudioList.length === 0) {
+                    console.warn('没有可用的音频');
+                    return;
+                }
+                
+                new APlayer({
+                    container: document.getElementById('aplayer'),
+                    fixed: 'false' === 'true',
+                    autoplay: 'false' === 'true',
+                    theme: '#542674',
+                    loop: 'all',
+                    order: 'list',
+                    preload: 'auto',
+                    volume: Number('0.7'),
+                    listFolded: 'false' === 'true',
+                    listMaxHeight: '197px',
+                    audio: finalAudioList
+                });
+            }
+            
+            // 如果有网易云音乐 ID，通过 API 获取真实链接
+            if (neteaseCount > 0) {
+                for (var i = 0; i < audioList.length; i++) {
+                    var audio = audioList[i];
+                    if (audio.neteaseId) {
+                        (function(audioItem) {
+                            // 使用 MetingJS 的公开 API
+                            fetch('https://api.i-meto.com/meting/api?server=netease&type=song&id=' + audioItem.neteaseId)
+                                .then(function(response) {
+                                    return response.json();
+                                })
+                                .then(function(data) {
+                                    loadedCount++;
+                                    if (data && data.length > 0 && data[0].url) {
+                                        finalAudioList.push({
+                                            name: data[0].name || audioItem.name,
+                                            artist: data[0].artist || audioItem.artist,
+                                            url: data[0].url,
+                                            cover: data[0].pic || audioItem.cover
+                                        });
+                                    } else {
+                                        // API 返回失败，使用原始信息（可能无法播放）
+                                        console.warn('无法获取歌曲 ' + audioItem.neteaseId + ' 的音频链接');
+                                    }
+                                    
+                                    // 所有请求完成后初始化播放器
+                                    if (loadedCount === neteaseCount) {
+                                        initPlayer();
+                                    }
+                                })
+                                .catch(function(error) {
+                                    loadedCount++;
+                                    console.error('获取网易云音乐链接失败:', error);
+                                    // 请求失败，仍然尝试初始化（可能部分歌曲可用）
+                                    if (loadedCount === neteaseCount) {
+                                        initPlayer();
+                                    }
+                                });
+                        })(audio);
+                    }
+                }
+            } else {
+                // 没有需要 API 获取的歌曲，直接初始化
+                initPlayer();
+            }
+        } catch(e) {
+            console.error('音乐播放器初始化失败:', e);
+        }
     });
 </script>
                         
@@ -739,45 +811,6 @@
             
                 <div class="article col s12 m6 l4" data-aos="zoom-in">
                     <div class="card">
-                        <a href="/posts/43494.html">
-                            <div class="card-image">
-                                
-                                    
-                                    <img src="/medias/featureimages/12.jpg" class="responsive-img" alt="下一个">
-                                
-                                <span class="card-title">下一个</span>
-                            </div>
-                        </a>
-
-                        <div class="card-content article-content">
-                            <div class="summary block-with-text">
-                                
-                                    105
-
-        document.querySelectorAll('.github-emoji')
-          .forEach(el => {
-            if (!el.dataset.src) { re
-                                
-                            </div>
-                            <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2025-11-21
-                            </span>
-                                <span class="publish-author">
-                                    
-                                        <i class="fa fa-user fa-fw"></i>
-                                        zhsong
-                                    
-                                </span>
-                            </div>
-                        </div>
-
-                        
-                    </div>
-                </div>
-            
-                <div class="article col s12 m6 l4" data-aos="zoom-in">
-                    <div class="card">
                         <a href="/posts/101.html">
                             <div class="card-image">
                                 
@@ -824,34 +857,33 @@ ConcurrentBag 三层查找机制
             
                 <div class="article col s12 m6 l4" data-aos="zoom-in">
                     <div class="card">
-                        <a href="/posts/9294.html">
+                        <a href="/posts/103.html">
                             <div class="card-image">
                                 
                                     
-                                    <img src="/medias/featureimages/10.jpg" class="responsive-img" alt="本博客搭建详细教程">
+                                    <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="Java NIO Buffer 使用与实现原理">
                                 
-                                <span class="card-title">本博客搭建详细教程</span>
+                                <span class="card-title">Java NIO Buffer 使用与实现原理</span>
                             </div>
                         </a>
 
                         <div class="card-content article-content">
                             <div class="summary block-with-text">
                                 
-                                    本博客详细教程地址：系列教程：
+                                    📚 微服务容错与流量治理核心机制笔记时间：2025年11月20日
+一、注册中心的心跳机制：为什么需要双向通信？
 
-基于 Hexo GitHub 从零开始搭建个人博客（一）：环境准备篇
-基于 Hexo GitHub 从零开始搭建个人博客（二）：搭建基础篇
-基于 Hexo GitHub 从零开始搭建个人博客（三）：Mate
+客户端 → 注册中心（心跳续约）目的：证明服务实例存活，防止被误剔除。实现：客户端定期（如 Eureka 默认 30s）发送
                                 
                             </div>
                             <div class="publish-info">
                             <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2025-01-17
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2023-10-08
                             </span>
                                 <span class="publish-author">
                                     
                                         <i class="fa fa-user fa-fw"></i>
-                                        zhsong
+                                        demus
                                     
                                 </span>
                             </div>
@@ -914,50 +946,13 @@ Java NIO Buffer 使用与实现原理1. Buffer 概述1.1 什么是 BufferBuffer�
                                 
                                     Spring 事务机制详解目录
 Spring @Transactional 实现原理
-Spring AOP 与 AspectJ 的关系
-CGLIB 与 AspectJ 的关系
-代理类的生成时机
+Spring AOP 代理机制详解
 事务传播行为详解
 事务隔离级别
-Transac
-                                
-                            </div>
-                            <div class="publish-info">
-                            <span class="publish-date">
-                                <i class="fa fa-clock-o fa-fw icon-date"></i>2023-10-08
-                            </span>
-                                <span class="publish-author">
-                                    
-                                        <i class="fa fa-user fa-fw"></i>
-                                        demus
-                                    
-                                </span>
-                            </div>
-                        </div>
+TransactionInterceptor 实现原理
 
-                        
-                    </div>
-                </div>
-            
-                <div class="article col s12 m6 l4" data-aos="zoom-in">
-                    <div class="card">
-                        <a href="/posts/103.html">
-                            <div class="card-image">
-                                
-                                    
-                                    <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="Java NIO Buffer 使用与实现原理">
-                                
-                                <span class="card-title">Java NIO Buffer 使用与实现原理</span>
-                            </div>
-                        </a>
 
-                        <div class="card-content article-content">
-                            <div class="summary block-with-text">
-                                
-                                    📚 微服务容错与流量治理核心机制笔记时间：2025年11月20日
-一、注册中心的心跳机制：为什么需要双向通信？
-
-客户端 → 注册中心（心跳续约）目的：证明服务实例存活，防止被误剔除。实现：客户端定期（如 Eureka 默认 30s）发送
+1. Spring @Tr
                                 
                             </div>
                             <div class="publish-info">
@@ -1015,7 +1010,7 @@ Transac
             
                 
                     &nbsp;<i class="fa fa-area-chart"></i>&nbsp;站点总字数:&nbsp;<span
-                            class="white-color">12.1k</span>&nbsp;字
+                            class="white-color">11.9k</span>&nbsp;字
                 
                 
                     <span id="icp"><img src="/medias/icp.png" style="vertical-align: text-bottom;" alt="icp"/>

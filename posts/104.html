@@ -7,12 +7,13 @@
     <meta name="keywords" content="SpringBoot事务实现原理, 博客 模版">
     <meta name="description" content="Spring 事务机制详解目录
 Spring @Transactional 实现原理
-Spring AOP 与 AspectJ 的关系
-CGLIB 与 AspectJ 的关系
-代理类的生成时机
+Spring AOP 代理机制详解
 事务传播行为详解
 事务隔离级别
-Transac">
+TransactionInterceptor 实现原理
+
+
+1. Spring @Tr">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -573,7 +574,7 @@ Transac">
                 
                     <div class="info-break-policy">
                         <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        4.9k
+                        5k
                     </div>
                 
 
@@ -597,12 +598,10 @@ Transac">
             <div id="articleContent">
                 <h1 id="Spring-事务机制详解"><a href="#Spring-事务机制详解" class="headerlink" title="Spring 事务机制详解"></a>Spring 事务机制详解</h1><h2 id="目录"><a href="#目录" class="headerlink" title="目录"></a>目录</h2><ol>
 <li><a href="#1-spring-transactional-实现原理">Spring @Transactional 实现原理</a></li>
-<li><a href="#2-spring-aop-与-aspectj-的关系">Spring AOP 与 AspectJ 的关系</a></li>
-<li><a href="#3-cglib-与-aspectj-的关系">CGLIB 与 AspectJ 的关系</a></li>
-<li><a href="#4-代理类的生成时机">代理类的生成时机</a></li>
-<li><a href="#5-事务传播行为详解">事务传播行为详解</a></li>
-<li><a href="#6-事务隔离级别">事务隔离级别</a></li>
-<li><a href="#7-transactioninterceptor-实现原理">TransactionInterceptor 实现原理</a></li>
+<li><a href="#2-spring-aop-代理机制详解">Spring AOP 代理机制详解</a></li>
+<li><a href="#3-事务传播行为详解">事务传播行为详解</a></li>
+<li><a href="#4-事务隔离级别">事务隔离级别</a></li>
+<li><a href="#5-transactioninterceptor-实现原理">TransactionInterceptor 实现原理</a></li>
 </ol>
 <hr>
 <h2 id="1-Spring-Transactional-实现原理"><a href="#1-Spring-Transactional-实现原理" class="headerlink" title="1. Spring @Transactional 实现原理"></a>1. Spring @Transactional 实现原理</h2><h3 id="1-1-核心机制：AOP（面向切面编程）"><a href="#1-1-核心机制：AOP（面向切面编程）" class="headerlink" title="1.1 核心机制：AOP（面向切面编程）"></a>1.1 核心机制：AOP（面向切面编程）</h3><p><code>@Transactional</code> 基于 Spring AOP，通过代理对象拦截方法调用，在方法执行前后添加事务逻辑。</p>
@@ -664,7 +663,7 @@ Transac">
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <hr>
-<h2 id="2-Spring-AOP-与-AspectJ-的关系"><a href="#2-Spring-AOP-与-AspectJ-的关系" class="headerlink" title="2. Spring AOP 与 AspectJ 的关系"></a>2. Spring AOP 与 AspectJ 的关系</h2><h3 id="2-1-核心区别"><a href="#2-1-核心区别" class="headerlink" title="2.1 核心区别"></a>2.1 核心区别</h3><p><strong>Spring AOP 和 AspectJ 不是同一级别的</strong>，它们是两种不同的 AOP 实现方式：</p>
+<h2 id="2-Spring-AOP-代理机制详解"><a href="#2-Spring-AOP-代理机制详解" class="headerlink" title="2. Spring AOP 代理机制详解"></a>2. Spring AOP 代理机制详解</h2><h3 id="2-1-Spring-AOP-与-AspectJ-的关系"><a href="#2-1-Spring-AOP-与-AspectJ-的关系" class="headerlink" title="2.1 Spring AOP 与 AspectJ 的关系"></a>2.1 Spring AOP 与 AspectJ 的关系</h3><h4 id="2-1-1-核心区别"><a href="#2-1-1-核心区别" class="headerlink" title="2.1.1 核心区别"></a>2.1.1 核心区别</h4><p><strong>Spring AOP 和 AspectJ 不是同一级别的</strong>，它们是两种不同的 AOP 实现方式：</p>
 <pre><code>AOP 实现方式（顶层）
     ├── Spring AOP（一种实现方式）
     │   └── 使用代理模式
@@ -675,26 +674,30 @@ Transac">
         └── 使用字节码织入（不是代理）
             ├── 编译时织入
             ├── 编译后织入
-            └── 加载时织入（LTW）</code></pre><h3 id="2-2-Spring-AOP：运行时动态代理"><a href="#2-2-Spring-AOP：运行时动态代理" class="headerlink" title="2.2 Spring AOP：运行时动态代理"></a>2.2 Spring AOP：运行时动态代理</h3><h4 id="实现方式："><a href="#实现方式：" class="headerlink" title="实现方式："></a>实现方式：</h4><ul>
+            └── 加载时织入（LTW）</code></pre><h4 id="2-1-2-Spring-AOP：运行时动态代理"><a href="#2-1-2-Spring-AOP：运行时动态代理" class="headerlink" title="2.1.2 Spring AOP：运行时动态代理"></a>2.1.2 Spring AOP：运行时动态代理</h4><p><strong>实现方式</strong>：</p>
+<ul>
 <li><strong>JDK 动态代理</strong>：基于接口，使用 <code>java.lang.reflect.Proxy</code></li>
 <li><strong>CGLIB 代理</strong>：基于子类继承，运行时生成字节码</li>
 </ul>
-<h4 id="特点："><a href="#特点：" class="headerlink" title="特点："></a>特点：</h4><ul>
+<p><strong>特点</strong>：</p>
+<ul>
 <li>在运行时生成代理对象</li>
 <li>仅支持方法级别的拦截</li>
 <li>仅支持 Spring Bean</li>
 </ul>
-<h3 id="2-3-AspectJ：编译时-加载时织入（不是动态代理）"><a href="#2-3-AspectJ：编译时-加载时织入（不是动态代理）" class="headerlink" title="2.3 AspectJ：编译时/加载时织入（不是动态代理）"></a>2.3 AspectJ：编译时/加载时织入（不是动态代理）</h3><h4 id="织入时机："><a href="#织入时机：" class="headerlink" title="织入时机："></a>织入时机：</h4><ul>
+<h4 id="2-1-3-AspectJ：编译时-加载时织入（不是动态代理）"><a href="#2-1-3-AspectJ：编译时-加载时织入（不是动态代理）" class="headerlink" title="2.1.3 AspectJ：编译时/加载时织入（不是动态代理）"></a>2.1.3 AspectJ：编译时/加载时织入（不是动态代理）</h4><p><strong>织入时机</strong>：</p>
+<ul>
 <li><strong>编译时织入</strong>：编译时修改字节码</li>
 <li><strong>编译后织入</strong>：对已编译的 .class 文件进行织入</li>
 <li><strong>加载时织入</strong>：类加载时通过 ClassLoader 织入</li>
 </ul>
-<h4 id="特点：-1"><a href="#特点：-1" class="headerlink" title="特点："></a>特点：</h4><ul>
+<p><strong>特点</strong>：</p>
+<ul>
 <li>不是动态代理，而是字节码织入</li>
 <li>支持字段、构造器、静态初始化等</li>
 <li>支持任意 Java 类</li>
 </ul>
-<h3 id="2-4-对比总结"><a href="#2-4-对比总结" class="headerlink" title="2.4 对比总结"></a>2.4 对比总结</h3><table>
+<h4 id="2-1-4-对比总结"><a href="#2-1-4-对比总结" class="headerlink" title="2.1.4 对比总结"></a>2.1.4 对比总结</h4><table>
 <thead>
 <tr>
 <th>特性</th>
@@ -733,7 +736,8 @@ Transac">
 <td>任意 Java 类</td>
 </tr>
 </tbody></table>
-<h3 id="2-5-Spring-中使用-AspectJ-的方式"><a href="#2-5-Spring-中使用-AspectJ-的方式" class="headerlink" title="2.5 Spring 中使用 AspectJ 的方式"></a>2.5 Spring 中使用 AspectJ 的方式</h3><h4 id="方式一：Spring-AOP（默认，运行时代理）"><a href="#方式一：Spring-AOP（默认，运行时代理）" class="headerlink" title="方式一：Spring AOP（默认，运行时代理）"></a>方式一：Spring AOP（默认，运行时代理）</h4><pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// 使用 AspectJ 注解风格，但底层是 Spring AOP</span>
+<h4 id="2-1-5-Spring-中使用-AspectJ-的方式"><a href="#2-1-5-Spring-中使用-AspectJ-的方式" class="headerlink" title="2.1.5 Spring 中使用 AspectJ 的方式"></a>2.1.5 Spring 中使用 AspectJ 的方式</h4><p><strong>方式一：Spring AOP（默认，运行时代理）</strong></p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// 使用 AspectJ 注解风格，但底层是 Spring AOP</span>
 <span class="token annotation punctuation">@Aspect</span>
 <span class="token annotation punctuation">@Component</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">MyAspect</span> <span class="token punctuation">{</span>
@@ -747,7 +751,8 @@ Transac">
 <li>运行时动态代理</li>
 <li>仅支持 Spring Bean</li>
 </ul>
-<h4 id="方式二：AspectJ-LTW（加载时织入）"><a href="#方式二：AspectJ-LTW（加载时织入）" class="headerlink" title="方式二：AspectJ LTW（加载时织入）"></a>方式二：AspectJ LTW（加载时织入）</h4><pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// 需要配置 aop.xml</span>
+<p><strong>方式二：AspectJ LTW（加载时织入）</strong></p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// 需要配置 aop.xml</span>
 <span class="token annotation punctuation">@Configuration</span>
 <span class="token annotation punctuation">@EnableLoadTimeWeaving</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">AspectJConfig</span> <span class="token punctuation">{</span>
@@ -758,20 +763,21 @@ Transac">
 <li>类加载时织入</li>
 <li>支持任意 Java 类</li>
 </ul>
-<hr>
-<h2 id="3-CGLIB-与-AspectJ-的关系"><a href="#3-CGLIB-与-AspectJ-的关系" class="headerlink" title="3. CGLIB 与 AspectJ 的关系"></a>3. CGLIB 与 AspectJ 的关系</h2><h3 id="3-1-核心关系总结"><a href="#3-1-核心关系总结" class="headerlink" title="3.1 核心关系总结"></a>3.1 核心关系总结</h3><ul>
+<h3 id="2-2-CGLIB-与-AspectJ-在-Spring-中的配合"><a href="#2-2-CGLIB-与-AspectJ-在-Spring-中的配合" class="headerlink" title="2.2 CGLIB 与 AspectJ 在 Spring 中的配合"></a>2.2 CGLIB 与 AspectJ 在 Spring 中的配合</h3><h4 id="2-2-1-核心关系总结"><a href="#2-2-1-核心关系总结" class="headerlink" title="2.2.1 核心关系总结"></a>2.2.1 核心关系总结</h4><ul>
 <li><strong>CGLIB 和 AspectJ 是两种不同的技术</strong>，用于不同的目的</li>
 <li><strong>Spring AOP 使用 CGLIB 作为代理实现方式之一</strong></li>
 <li><strong>AspectJ 提供切点表达式解析</strong>，Spring AOP 借用其注解风格</li>
 </ul>
-<h3 id="3-2-CGLIB-是什么"><a href="#3-2-CGLIB-是什么" class="headerlink" title="3.2 CGLIB 是什么"></a>3.2 CGLIB 是什么</h3><p>CGLIB（Code Generation Library）是一个字节码生成库，用于在运行时生成类的子类。</p>
-<h4 id="特点：-2"><a href="#特点：-2" class="headerlink" title="特点："></a>特点：</h4><ul>
+<h4 id="2-2-2-CGLIB-是什么"><a href="#2-2-2-CGLIB-是什么" class="headerlink" title="2.2.2 CGLIB 是什么"></a>2.2.2 CGLIB 是什么</h4><p>CGLIB（Code Generation Library）是一个字节码生成库，用于在运行时生成类的子类。</p>
+<p><strong>特点</strong>：</p>
+<ul>
 <li>运行时生成代理类（字节码生成）</li>
 <li>基于继承（创建目标类的子类）</li>
 <li>不需要接口</li>
 <li>性能较好（比 JDK 动态代理快）</li>
 </ul>
-<h4 id="工作原理："><a href="#工作原理：" class="headerlink" title="工作原理："></a>工作原理：</h4><pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// 原始类</span>
+<p><strong>工作原理</strong>：</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// 原始类</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">UserService</span> <span class="token punctuation">{</span>
     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">save</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
         <span class="token comment" spellcheck="true">// ...</span>
@@ -788,34 +794,27 @@ Transac">
         interceptor<span class="token punctuation">.</span><span class="token function">intercept</span><span class="token punctuation">(</span><span class="token keyword">this</span><span class="token punctuation">,</span> method<span class="token punctuation">,</span> args<span class="token punctuation">,</span> methodProxy<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="3-3-AspectJ-是什么"><a href="#3-3-AspectJ-是什么" class="headerlink" title="3.3 AspectJ 是什么"></a>3.3 AspectJ 是什么</h3><p>AspectJ 是一个完整的 AOP 框架，提供：</p>
+<h4 id="2-2-3-AspectJ-在-Spring-中的作用"><a href="#2-2-3-AspectJ-在-Spring-中的作用" class="headerlink" title="2.2.3 AspectJ 在 Spring 中的作用"></a>2.2.3 AspectJ 在 Spring 中的作用</h4><p>AspectJ 在 Spring AOP 中提供：</p>
 <ul>
-<li>切点表达式语言</li>
-<li>字节码织入能力</li>
-<li>注解支持（@Aspect, @Before 等）</li>
+<li>切点表达式语言（<code>execution</code>, <code>within</code> 等）</li>
+<li>注解支持（<code>@Aspect</code>, <code>@Before</code>, <code>@After</code> 等）</li>
+<li>表达式解析器（<code>aspectjweaver.jar</code>）</li>
 </ul>
-<h3 id="3-4-在-Spring-中的关系"><a href="#3-4-在-Spring-中的关系" class="headerlink" title="3.4 在 Spring 中的关系"></a>3.4 在 Spring 中的关系</h3><pre><code>Spring AOP
+<h4 id="2-2-4-在-Spring-中的完整关系"><a href="#2-2-4-在-Spring-中的完整关系" class="headerlink" title="2.2.4 在 Spring 中的完整关系"></a>2.2.4 在 Spring 中的完整关系</h4><pre><code>Spring AOP
     ├── 使用 AspectJ 的注解风格 (@Aspect, @Before, @After...)
     ├── 使用 AspectJ 的切点表达式 (execution, within...)
     ├── 使用 AspectJ 的解析器 (aspectjweaver.jar)
     └── 使用两种代理实现：
         ├── JDK 动态代理 (基于接口)
-        └── CGLIB 代理 (基于继承) ← 这里用到 CGLIB</code></pre><h3 id="3-5-代理类命名规则"><a href="#3-5-代理类命名规则" class="headerlink" title="3.5 代理类命名规则"></a>3.5 代理类命名规则</h3><h4 id="JDK-动态代理"><a href="#JDK-动态代理" class="headerlink" title="JDK 动态代理"></a>JDK 动态代理</h4><pre class="line-numbers language-java"><code class="language-java">$Proxy0
-$Proxy1
-$Proxy2
-<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-<h4 id="CGLIB-代理"><a href="#CGLIB-代理" class="headerlink" title="CGLIB 代理"></a>CGLIB 代理</h4><pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// CGLIB 代理生成的类名格式</span>
-原始类名$$EnhancerByCGLIB$$hashcode<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<h4 id="Spring-AOP-使用-CGLIB"><a href="#Spring-AOP-使用-CGLIB" class="headerlink" title="Spring AOP 使用 CGLIB"></a>Spring AOP 使用 CGLIB</h4><pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// Spring AOP 使用 CGLIB 时的类名格式</span>
-原始类名$$EnhancerBySpringCGLIB$$hashcode<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
-<h3 id="3-6-总结"><a href="#3-6-总结" class="headerlink" title="3.6 总结"></a>3.6 总结</h3><ul>
+        └── CGLIB 代理 (基于继承) ← 这里用到 CGLIB</code></pre><p><strong>简单记忆</strong>：</p>
+<ul>
 <li><strong>AspectJ</strong>：提供语法和解析器（告诉 Spring 切哪里）</li>
 <li><strong>CGLIB</strong>：生成代理类（告诉 Spring 怎么切）</li>
 </ul>
 <p>两者在 Spring AOP 中配合使用，但职责不同。</p>
-<hr>
-<h2 id="4-代理类的生成时机"><a href="#4-代理类的生成时机" class="headerlink" title="4. 代理类的生成时机"></a>4. 代理类的生成时机</h2><h3 id="4-1-核心答案"><a href="#4-1-核心答案" class="headerlink" title="4.1 核心答案"></a>4.1 核心答案</h3><p><strong>代理类在 Spring 启动时（Bean 创建时）生成，不是在实际调用时生成</strong></p>
-<h3 id="4-2-详细流程"><a href="#4-2-详细流程" class="headerlink" title="4.2 详细流程"></a>4.2 详细流程</h3><h4 id="阶段1：Spring-启动时（Bean-创建阶段）"><a href="#阶段1：Spring-启动时（Bean-创建阶段）" class="headerlink" title="阶段1：Spring 启动时（Bean 创建阶段）"></a>阶段1：Spring 启动时（Bean 创建阶段）</h4><pre><code>1. 扫描所有 @Component、@Service 等注解的类
+<h3 id="2-3-代理类的生成时机"><a href="#2-3-代理类的生成时机" class="headerlink" title="2.3 代理类的生成时机"></a>2.3 代理类的生成时机</h3><h4 id="2-3-1-核心答案"><a href="#2-3-1-核心答案" class="headerlink" title="2.3.1 核心答案"></a>2.3.1 核心答案</h4><p><strong>代理类在 Spring 启动时（Bean 创建时）生成，不是在实际调用时生成</strong></p>
+<h4 id="2-3-2-详细流程"><a href="#2-3-2-详细流程" class="headerlink" title="2.3.2 详细流程"></a>2.3.2 详细流程</h4><p><strong>阶段1：Spring 启动时（Bean 创建阶段）</strong></p>
+<pre><code>1. 扫描所有 @Component、@Service 等注解的类
    ↓
 2. 识别带 @Transactional 的类和方法
    ↓
@@ -825,13 +824,14 @@ $Proxy2
    ↓
 5. 创建代理对象（此时就生成了！）
    ↓
-6. 将代理对象放入容器</code></pre><h4 id="阶段2：实际调用时（运行时）"><a href="#阶段2：实际调用时（运行时）" class="headerlink" title="阶段2：实际调用时（运行时）"></a>阶段2：实际调用时（运行时）</h4><pre><code>1. 从容器获取 Bean（已经是代理对象了！）
+6. 将代理对象放入容器</code></pre><p><strong>阶段2：实际调用时（运行时）</strong></p>
+<pre><code>1. 从容器获取 Bean（已经是代理对象了！）
    ↓
 2. 调用方法
    ↓
 3. 代理对象拦截调用
    ↓
-4. TransactionInterceptor 处理</code></pre><h3 id="4-3-完整时序图"><a href="#4-3-完整时序图" class="headerlink" title="4.3 完整时序图"></a>4.3 完整时序图</h3><pre><code>Spring 启动阶段（Bean 创建时）
+4. TransactionInterceptor 处理</code></pre><h4 id="2-3-3-完整时序图"><a href="#2-3-3-完整时序图" class="headerlink" title="2.3.3 完整时序图"></a>2.3.3 完整时序图</h4><pre><code>Spring 启动阶段（Bean 创建时）
 │
 ├─ 1. 扫描所有 Bean
 │   └─ 发现 @Service class UserService
@@ -866,7 +866,18 @@ $Proxy2
 │   ├─ 调用原始方法
 │   └─ 提交/回滚事务
 │
-└─ 5. 返回结果</code></pre><h3 id="4-4-关键点总结"><a href="#4-4-关键点总结" class="headerlink" title="4.4 关键点总结"></a>4.4 关键点总结</h3><ul>
+└─ 5. 返回结果</code></pre><h4 id="2-3-4-代理类命名规则"><a href="#2-3-4-代理类命名规则" class="headerlink" title="2.3.4 代理类命名规则"></a>2.3.4 代理类命名规则</h4><p><strong>JDK 动态代理</strong>：</p>
+<pre class="line-numbers language-java"><code class="language-java">$Proxy0
+$Proxy1
+$Proxy2
+<span class="token punctuation">.</span><span class="token punctuation">.</span><span class="token punctuation">.</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
+<p><strong>CGLIB 代理</strong>：</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// CGLIB 代理生成的类名格式</span>
+原始类名$$EnhancerByCGLIB$$hashcode<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<p><strong>Spring AOP 使用 CGLIB</strong>：</p>
+<pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// Spring AOP 使用 CGLIB 时的类名格式</span>
+原始类名$$EnhancerBySpringCGLIB$$hashcode<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
+<h4 id="2-3-5-关键点总结"><a href="#2-3-5-关键点总结" class="headerlink" title="2.3.5 关键点总结"></a>2.3.5 关键点总结</h4><ul>
 <li><strong>代理对象生成时机</strong>：Spring 启动时（Bean 创建阶段）</li>
 <li><strong>不是在调用时生成</strong>：调用时只是使用已存在的代理对象</li>
 <li><strong>为什么在启动时生成</strong>：<ul>
@@ -877,7 +888,7 @@ $Proxy2
 </li>
 </ul>
 <hr>
-<h2 id="5-事务传播行为详解"><a href="#5-事务传播行为详解" class="headerlink" title="5. 事务传播行为详解"></a>5. 事务传播行为详解</h2><h3 id="5-1-最常用的三个传播行为"><a href="#5-1-最常用的三个传播行为" class="headerlink" title="5.1 最常用的三个传播行为"></a>5.1 最常用的三个传播行为</h3><h4 id="1-REQUIRED（默认，最常用）"><a href="#1-REQUIRED（默认，最常用）" class="headerlink" title="1. REQUIRED（默认，最常用）"></a>1. REQUIRED（默认，最常用）</h4><p><strong>含义</strong>：</p>
+<h2 id="3-事务传播行为详解"><a href="#3-事务传播行为详解" class="headerlink" title="3. 事务传播行为详解"></a>3. 事务传播行为详解</h2><h3 id="3-1-最常用的三个传播行为"><a href="#3-1-最常用的三个传播行为" class="headerlink" title="3.1 最常用的三个传播行为"></a>3.1 最常用的三个传播行为</h3><h4 id="1-REQUIRED（默认，最常用）"><a href="#1-REQUIRED（默认，最常用）" class="headerlink" title="1. REQUIRED（默认，最常用）"></a>1. REQUIRED（默认，最常用）</h4><p><strong>含义</strong>：</p>
 <ul>
 <li>如果当前存在事务，则加入该事务</li>
 <li>如果当前不存在事务，则创建一个新事务</li>
@@ -978,7 +989,7 @@ $Proxy2
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">BatchService</span> <span class="token punctuation">{</span>
 
     <span class="token annotation punctuation">@Transactional</span><span class="token punctuation">(</span>propagation <span class="token operator">=</span> Propagation<span class="token punctuation">.</span>REQUIRED<span class="token punctuation">)</span>
-    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">batchProcessOrders</span><span class="token punctuation">(</span>List<span class="token operator">&lt;</span>Order<span class="token operator">&gt;</span> orders<span class="token punctuation">)</span> <span class="token punctuation">{</span>
+    <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">batchProcessOrders</span><span class="token punctuation">(</span>List<span class="token operator">&lt;</span>Order<span class="token operator">></span> orders<span class="token punctuation">)</span> <span class="token punctuation">{</span>
         <span class="token keyword">for</span> <span class="token punctuation">(</span>Order order <span class="token operator">:</span> orders<span class="token punctuation">)</span> <span class="token punctuation">{</span>
             <span class="token keyword">try</span> <span class="token punctuation">{</span>
                 <span class="token comment" spellcheck="true">// 每个订单处理是嵌套事务</span>
@@ -1007,7 +1018,7 @@ $Proxy2
         <span class="token comment" spellcheck="true">// 不影响 batchProcessOrders 中的其他订单</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="5-2-三个传播行为对比"><a href="#5-2-三个传播行为对比" class="headerlink" title="5.2 三个传播行为对比"></a>5.2 三个传播行为对比</h3><table>
+<h3 id="3-2-三个传播行为对比"><a href="#3-2-三个传播行为对比" class="headerlink" title="3.2 三个传播行为对比"></a>3.2 三个传播行为对比</h3><table>
 <thead>
 <tr>
 <th>传播行为</th>
@@ -1039,7 +1050,7 @@ $Proxy2
 <td>⭐⭐⭐</td>
 </tr>
 </tbody></table>
-<h3 id="5-3-REQUIRES-NEW-和-NESTED-的区别"><a href="#5-3-REQUIRES-NEW-和-NESTED-的区别" class="headerlink" title="5.3 REQUIRES_NEW 和 NESTED 的区别"></a>5.3 REQUIRES_NEW 和 NESTED 的区别</h3><h4 id="REQUIRES-NEW：互不影响（完全独立）"><a href="#REQUIRES-NEW：互不影响（完全独立）" class="headerlink" title="REQUIRES_NEW：互不影响（完全独立）"></a>REQUIRES_NEW：互不影响（完全独立）</h4><ul>
+<h3 id="3-3-REQUIRES-NEW-和-NESTED-的区别"><a href="#3-3-REQUIRES-NEW-和-NESTED-的区别" class="headerlink" title="3.3 REQUIRES_NEW 和 NESTED 的区别"></a>3.3 REQUIRES_NEW 和 NESTED 的区别</h3><h4 id="REQUIRES-NEW：互不影响（完全独立）"><a href="#REQUIRES-NEW：互不影响（完全独立）" class="headerlink" title="REQUIRES_NEW：互不影响（完全独立）"></a>REQUIRES_NEW：互不影响（完全独立）</h4><ul>
 <li>创建完全独立的新事务</li>
 <li>外层事务回滚 → 不影响内层（内层已独立提交）</li>
 <li>内层事务回滚 → 不影响外层（外层继续执行）</li>
@@ -1085,8 +1096,8 @@ $Proxy2
 </tr>
 </tbody></table>
 <hr>
-<h2 id="6-事务隔离级别"><a href="#6-事务隔离级别" class="headerlink" title="6. 事务隔离级别"></a>6. 事务隔离级别</h2><h3 id="6-1-可以设置不同的隔离级别"><a href="#6-1-可以设置不同的隔离级别" class="headerlink" title="6.1 可以设置不同的隔离级别"></a>6.1 可以设置不同的隔离级别</h3><p>每个 <code>@Transactional</code> 注解都可以独立配置自己的隔离级别，互不影响。</p>
-<h3 id="6-2-如何设置不同的隔离级别"><a href="#6-2-如何设置不同的隔离级别" class="headerlink" title="6.2 如何设置不同的隔离级别"></a>6.2 如何设置不同的隔离级别</h3><pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@Service</span>
+<h2 id="4-事务隔离级别"><a href="#4-事务隔离级别" class="headerlink" title="4. 事务隔离级别"></a>4. 事务隔离级别</h2><h3 id="4-1-可以设置不同的隔离级别"><a href="#4-1-可以设置不同的隔离级别" class="headerlink" title="4.1 可以设置不同的隔离级别"></a>4.1 可以设置不同的隔离级别</h3><p>每个 <code>@Transactional</code> 注解都可以独立配置自己的隔离级别，互不影响。</p>
+<h3 id="4-2-如何设置不同的隔离级别"><a href="#4-2-如何设置不同的隔离级别" class="headerlink" title="4.2 如何设置不同的隔离级别"></a>4.2 如何设置不同的隔离级别</h3><pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@Service</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OrderService</span> <span class="token punctuation">{</span>
 
     <span class="token comment" spellcheck="true">// 方法1：使用默认隔离级别（通常是 READ_COMMITTED）</span>
@@ -1111,7 +1122,7 @@ $Proxy2
     <span class="token annotation punctuation">@Transactional</span><span class="token punctuation">(</span>isolation <span class="token operator">=</span> Isolation<span class="token punctuation">.</span>REPEATABLE_READ<span class="token punctuation">)</span>
     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">calculateTotalAmount</span><span class="token punctuation">(</span>Long userId<span class="token punctuation">)</span> <span class="token punctuation">{</span>
         <span class="token comment" spellcheck="true">// 需要多次读取一致性的场景</span>
-        List<span class="token operator">&lt;</span>Order<span class="token operator">&gt;</span> orders <span class="token operator">=</span> orderMapper<span class="token punctuation">.</span><span class="token function">selectByUserId</span><span class="token punctuation">(</span>userId<span class="token punctuation">)</span><span class="token punctuation">;</span>
+        List<span class="token operator">&lt;</span>Order<span class="token operator">></span> orders <span class="token operator">=</span> orderMapper<span class="token punctuation">.</span><span class="token function">selectByUserId</span><span class="token punctuation">(</span>userId<span class="token punctuation">)</span><span class="token punctuation">;</span>
         BigDecimal total <span class="token operator">=</span> orders<span class="token punctuation">.</span><span class="token function">stream</span><span class="token punctuation">(</span><span class="token punctuation">)</span>
             <span class="token punctuation">.</span><span class="token function">map</span><span class="token punctuation">(</span>Order<span class="token operator">:</span><span class="token operator">:</span>getAmount<span class="token punctuation">)</span>
             <span class="token punctuation">.</span><span class="token function">reduce</span><span class="token punctuation">(</span>BigDecimal<span class="token punctuation">.</span>ZERO<span class="token punctuation">,</span> BigDecimal<span class="token operator">:</span><span class="token operator">:</span>add<span class="token punctuation">)</span><span class="token punctuation">;</span>
@@ -1127,7 +1138,7 @@ $Proxy2
         accountMapper<span class="token punctuation">.</span><span class="token function">updateById</span><span class="token punctuation">(</span>account<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="6-3-五种隔离级别"><a href="#6-3-五种隔离级别" class="headerlink" title="6.3 五种隔离级别"></a>6.3 五种隔离级别</h3><table>
+<h3 id="4-3-五种隔离级别"><a href="#4-3-五种隔离级别" class="headerlink" title="4.3 五种隔离级别"></a>4.3 五种隔离级别</h3><table>
 <thead>
 <tr>
 <th>隔离级别</th>
@@ -1171,7 +1182,7 @@ $Proxy2
 <td>关键业务、金融操作</td>
 </tr>
 </tbody></table>
-<h3 id="6-4-隔离级别的实现原理"><a href="#6-4-隔离级别的实现原理" class="headerlink" title="6.4 隔离级别的实现原理"></a>6.4 隔离级别的实现原理</h3><p>虽然数据库有全局隔离级别，但 Spring 可以在每个事务连接上设置不同的隔离级别：</p>
+<h3 id="4-4-隔离级别的实现原理"><a href="#4-4-隔离级别的实现原理" class="headerlink" title="4.4 隔离级别的实现原理"></a>4.4 隔离级别的实现原理</h3><p>虽然数据库有全局隔离级别，但 Spring 可以在每个事务连接上设置不同的隔离级别：</p>
 <pre><code>Spring 事务管理器的工作流程
 1. 开启事务时，从连接池获取 Connection
    ↓
@@ -1190,13 +1201,13 @@ $Proxy2
 <li>通过 <code>Connection.setTransactionIsolation()</code> 实现</li>
 <li>事务结束后连接归还连接池</li>
 </ul>
-<h3 id="6-5-注意事项"><a href="#6-5-注意事项" class="headerlink" title="6.5 注意事项"></a>6.5 注意事项</h3><ol>
+<h3 id="4-5-注意事项"><a href="#4-5-注意事项" class="headerlink" title="4.5 注意事项"></a>4.5 注意事项</h3><ol>
 <li><strong>隔离级别不能降级</strong>：内层事务不能使用比外层更低的隔离级别</li>
 <li><strong>数据库支持情况</strong>：不同数据库支持的隔离级别不同</li>
 <li><strong>性能考虑</strong>：根据业务需求选择合适的隔离级别</li>
 </ol>
 <hr>
-<h2 id="7-TransactionInterceptor-实现原理"><a href="#7-TransactionInterceptor-实现原理" class="headerlink" title="7. TransactionInterceptor 实现原理"></a>7. TransactionInterceptor 实现原理</h2><h3 id="7-1-TransactionInterceptor-入口"><a href="#7-1-TransactionInterceptor-入口" class="headerlink" title="7.1 TransactionInterceptor 入口"></a>7.1 TransactionInterceptor 入口</h3><pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// Spring 源码：TransactionInterceptor</span>
+<h2 id="5-TransactionInterceptor-实现原理"><a href="#5-TransactionInterceptor-实现原理" class="headerlink" title="5. TransactionInterceptor 实现原理"></a>5. TransactionInterceptor 实现原理</h2><h3 id="5-1-TransactionInterceptor-入口"><a href="#5-1-TransactionInterceptor-入口" class="headerlink" title="5.1 TransactionInterceptor 入口"></a>5.1 TransactionInterceptor 入口</h3><pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// Spring 源码：TransactionInterceptor</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">TransactionInterceptor</span> <span class="token keyword">implements</span> <span class="token class-name">MethodInterceptor</span> <span class="token punctuation">{</span>
 
     <span class="token keyword">private</span> PlatformTransactionManager transactionManager<span class="token punctuation">;</span>
@@ -1205,7 +1216,7 @@ $Proxy2
     <span class="token annotation punctuation">@Override</span>
     <span class="token keyword">public</span> Object <span class="token function">invoke</span><span class="token punctuation">(</span>MethodInvocation invocation<span class="token punctuation">)</span> <span class="token keyword">throws</span> Throwable <span class="token punctuation">{</span>
         <span class="token comment" spellcheck="true">// 1. 获取目标类和方法</span>
-        Class<span class="token operator">&lt;</span><span class="token operator">?</span><span class="token operator">&gt;</span> targetClass <span class="token operator">=</span> invocation<span class="token punctuation">.</span><span class="token function">getThis</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">!=</span> null <span class="token operator">?</span> 
+        Class<span class="token operator">&lt;</span><span class="token operator">?</span><span class="token operator">></span> targetClass <span class="token operator">=</span> invocation<span class="token punctuation">.</span><span class="token function">getThis</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token operator">!=</span> null <span class="token operator">?</span> 
             AopUtils<span class="token punctuation">.</span><span class="token function">getTargetClass</span><span class="token punctuation">(</span>invocation<span class="token punctuation">.</span><span class="token function">getThis</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token operator">:</span> null<span class="token punctuation">;</span>
         Method method <span class="token operator">=</span> invocation<span class="token punctuation">.</span><span class="token function">getMethod</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span>
 
@@ -1238,7 +1249,7 @@ $Proxy2
         <span class="token punctuation">}</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="7-2-PlatformTransactionManager-获取事务（处理传播行为）"><a href="#7-2-PlatformTransactionManager-获取事务（处理传播行为）" class="headerlink" title="7.2 PlatformTransactionManager 获取事务（处理传播行为）"></a>7.2 PlatformTransactionManager 获取事务（处理传播行为）</h3><pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// Spring 源码：AbstractPlatformTransactionManager</span>
+<h3 id="5-2-PlatformTransactionManager-获取事务（处理传播行为）"><a href="#5-2-PlatformTransactionManager-获取事务（处理传播行为）" class="headerlink" title="5.2 PlatformTransactionManager 获取事务（处理传播行为）"></a>5.2 PlatformTransactionManager 获取事务（处理传播行为）</h3><pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// Spring 源码：AbstractPlatformTransactionManager</span>
 <span class="token keyword">public</span> <span class="token keyword">abstract</span> <span class="token keyword">class</span> <span class="token class-name">AbstractPlatformTransactionManager</span> 
         <span class="token keyword">implements</span> <span class="token class-name">PlatformTransactionManager</span> <span class="token punctuation">{</span>
 
@@ -1322,7 +1333,7 @@ $Proxy2
             debugEnabled<span class="token punctuation">,</span> null<span class="token punctuation">,</span> newSynchronization<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="7-3-具体传播行为的实现"><a href="#7-3-具体传播行为的实现" class="headerlink" title="7.3 具体传播行为的实现"></a>7.3 具体传播行为的实现</h3><h4 id="7-3-1-REQUIRED（默认）的实现"><a href="#7-3-1-REQUIRED（默认）的实现" class="headerlink" title="7.3.1 REQUIRED（默认）的实现"></a>7.3.1 REQUIRED（默认）的实现</h4><pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// REQUIRED 传播行为的处理逻辑</span>
+<h3 id="5-3-具体传播行为的实现"><a href="#5-3-具体传播行为的实现" class="headerlink" title="5.3 具体传播行为的实现"></a>5.3 具体传播行为的实现</h3><h4 id="5-3-1-REQUIRED（默认）的实现"><a href="#5-3-1-REQUIRED（默认）的实现" class="headerlink" title="5.3.1 REQUIRED（默认）的实现"></a>5.3.1 REQUIRED（默认）的实现</h4><pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// REQUIRED 传播行为的处理逻辑</span>
 <span class="token keyword">private</span> TransactionStatus <span class="token function">handleRequired</span><span class="token punctuation">(</span>
         TransactionDefinition definition<span class="token punctuation">,</span> 
         Object transaction<span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -1338,7 +1349,7 @@ $Proxy2
     <span class="token comment" spellcheck="true">// 如果当前不存在事务，创建新事务</span>
     <span class="token keyword">return</span> <span class="token function">startTransaction</span><span class="token punctuation">(</span>definition<span class="token punctuation">,</span> transaction<span class="token punctuation">,</span> debugEnabled<span class="token punctuation">,</span> null<span class="token punctuation">)</span><span class="token punctuation">;</span>
 <span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h4 id="7-3-2-REQUIRES-NEW-的实现"><a href="#7-3-2-REQUIRES-NEW-的实现" class="headerlink" title="7.3.2 REQUIRES_NEW 的实现"></a>7.3.2 REQUIRES_NEW 的实现</h4><pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// REQUIRES_NEW 传播行为的处理逻辑</span>
+<h4 id="5-3-2-REQUIRES-NEW-的实现"><a href="#5-3-2-REQUIRES-NEW-的实现" class="headerlink" title="5.3.2 REQUIRES_NEW 的实现"></a>5.3.2 REQUIRES_NEW 的实现</h4><pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// REQUIRES_NEW 传播行为的处理逻辑</span>
 <span class="token keyword">private</span> TransactionStatus <span class="token function">handleRequiresNew</span><span class="token punctuation">(</span>
         TransactionDefinition definition<span class="token punctuation">,</span> 
         Object transaction<span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -1375,7 +1386,7 @@ $Proxy2
     <span class="token comment" spellcheck="true">// 恢复被挂起的事务信息</span>
     <span class="token comment" spellcheck="true">// 重新设置到当前线程</span>
 <span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h4 id="7-3-3-NESTED-的实现"><a href="#7-3-3-NESTED-的实现" class="headerlink" title="7.3.3 NESTED 的实现"></a>7.3.3 NESTED 的实现</h4><pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// NESTED 传播行为的处理逻辑</span>
+<h4 id="5-3-3-NESTED-的实现"><a href="#5-3-3-NESTED-的实现" class="headerlink" title="5.3.3 NESTED 的实现"></a>5.3.3 NESTED 的实现</h4><pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// NESTED 传播行为的处理逻辑</span>
 <span class="token keyword">private</span> TransactionStatus <span class="token function">handleNested</span><span class="token punctuation">(</span>
         TransactionDefinition definition<span class="token punctuation">,</span> 
         Object transaction<span class="token punctuation">)</span> <span class="token punctuation">{</span>
@@ -1433,7 +1444,7 @@ $Proxy2
             <span class="token string">"Could not roll back to JDBC savepoint"</span><span class="token punctuation">,</span> ex<span class="token punctuation">)</span><span class="token punctuation">;</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="7-4-事务提交和回滚的处理"><a href="#7-4-事务提交和回滚的处理" class="headerlink" title="7.4 事务提交和回滚的处理"></a>7.4 事务提交和回滚的处理</h3><pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// 提交事务</span>
+<h3 id="5-4-事务提交和回滚的处理"><a href="#5-4-事务提交和回滚的处理" class="headerlink" title="5.4 事务提交和回滚的处理"></a>5.4 事务提交和回滚的处理</h3><pre class="line-numbers language-java"><code class="language-java"><span class="token comment" spellcheck="true">// 提交事务</span>
 <span class="token keyword">protected</span> <span class="token keyword">void</span> <span class="token function">commitTransactionAfterReturning</span><span class="token punctuation">(</span>TransactionInfo txInfo<span class="token punctuation">)</span> <span class="token punctuation">{</span>
     <span class="token keyword">if</span> <span class="token punctuation">(</span>txInfo <span class="token operator">!=</span> null <span class="token operator">&amp;&amp;</span> txInfo<span class="token punctuation">.</span><span class="token function">hasTransaction</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
         <span class="token comment" spellcheck="true">// 提交事务</span>
@@ -1461,15 +1472,15 @@ $Proxy2
         <span class="token comment" spellcheck="true">// 不提交，外层事务提交时会一起提交</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="7-5-完整执行流程示例"><a href="#7-5-完整执行流程示例" class="headerlink" title="7.5 完整执行流程示例"></a>7.5 完整执行流程示例</h3><pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@Service</span>
+<h3 id="5-5-完整执行流程示例"><a href="#5-5-完整执行流程示例" class="headerlink" title="5.5 完整执行流程示例"></a>5.5 完整执行流程示例</h3><pre class="line-numbers language-java"><code class="language-java"><span class="token annotation punctuation">@Service</span>
 <span class="token keyword">public</span> <span class="token keyword">class</span> <span class="token class-name">OrderService</span> <span class="token punctuation">{</span>
 
     <span class="token annotation punctuation">@Transactional</span><span class="token punctuation">(</span>propagation <span class="token operator">=</span> Propagation<span class="token punctuation">.</span>REQUIRED<span class="token punctuation">)</span>
     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">method1</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
         <span class="token comment" spellcheck="true">// 1. TransactionInterceptor.invoke()</span>
         <span class="token comment" spellcheck="true">// 2. createTransactionIfNecessary()</span>
-        <span class="token comment" spellcheck="true">// 3. tm.getTransaction() -&gt; handleExistingTransaction()</span>
-        <span class="token comment" spellcheck="true">//    -&gt; 当前无事务，创建新事务</span>
+        <span class="token comment" spellcheck="true">// 3. tm.getTransaction() -> handleExistingTransaction()</span>
+        <span class="token comment" spellcheck="true">//    -> 当前无事务，创建新事务</span>
         <span class="token comment" spellcheck="true">// 4. 执行业务代码</span>
         <span class="token function">method2</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// 调用 REQUIRES_NEW</span>
         <span class="token function">method3</span><span class="token punctuation">(</span><span class="token punctuation">)</span><span class="token punctuation">;</span> <span class="token comment" spellcheck="true">// 调用 NESTED</span>
@@ -1479,10 +1490,10 @@ $Proxy2
     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">method2</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
         <span class="token comment" spellcheck="true">// 1. TransactionInterceptor.invoke()</span>
         <span class="token comment" spellcheck="true">// 2. createTransactionIfNecessary()</span>
-        <span class="token comment" spellcheck="true">// 3. tm.getTransaction() -&gt; handleExistingTransaction()</span>
-        <span class="token comment" spellcheck="true">//    -&gt; 检测到当前有事务</span>
-        <span class="token comment" spellcheck="true">//    -&gt; suspend(transaction) 挂起外层事务</span>
-        <span class="token comment" spellcheck="true">//    -&gt; startTransaction() 创建新事务</span>
+        <span class="token comment" spellcheck="true">// 3. tm.getTransaction() -> handleExistingTransaction()</span>
+        <span class="token comment" spellcheck="true">//    -> 检测到当前有事务</span>
+        <span class="token comment" spellcheck="true">//    -> suspend(transaction) 挂起外层事务</span>
+        <span class="token comment" spellcheck="true">//    -> startTransaction() 创建新事务</span>
         <span class="token comment" spellcheck="true">// 4. 执行业务代码</span>
         <span class="token comment" spellcheck="true">// 5. 提交新事务</span>
         <span class="token comment" spellcheck="true">// 6. resume() 恢复外层事务</span>
@@ -1492,15 +1503,15 @@ $Proxy2
     <span class="token keyword">public</span> <span class="token keyword">void</span> <span class="token function">method3</span><span class="token punctuation">(</span><span class="token punctuation">)</span> <span class="token punctuation">{</span>
         <span class="token comment" spellcheck="true">// 1. TransactionInterceptor.invoke()</span>
         <span class="token comment" spellcheck="true">// 2. createTransactionIfNecessary()</span>
-        <span class="token comment" spellcheck="true">// 3. tm.getTransaction() -&gt; handleExistingTransaction()</span>
-        <span class="token comment" spellcheck="true">//    -&gt; 检测到当前有事务</span>
-        <span class="token comment" spellcheck="true">//    -&gt; createAndHoldSavepoint() 创建保存点</span>
+        <span class="token comment" spellcheck="true">// 3. tm.getTransaction() -> handleExistingTransaction()</span>
+        <span class="token comment" spellcheck="true">//    -> 检测到当前有事务</span>
+        <span class="token comment" spellcheck="true">//    -> createAndHoldSavepoint() 创建保存点</span>
         <span class="token comment" spellcheck="true">// 4. 执行业务代码</span>
         <span class="token comment" spellcheck="true">// 5. 如果成功：releaseHeldSavepoint() 释放保存点</span>
         <span class="token comment" spellcheck="true">//    如果失败：rollbackToSavepoint() 回滚到保存点</span>
     <span class="token punctuation">}</span>
 <span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<h3 id="7-6-关键实现点总结"><a href="#7-6-关键实现点总结" class="headerlink" title="7.6 关键实现点总结"></a>7.6 关键实现点总结</h3><ol>
+<h3 id="5-6-关键实现点总结"><a href="#5-6-关键实现点总结" class="headerlink" title="5.6 关键实现点总结"></a>5.6 关键实现点总结</h3><ol>
 <li><p><strong>REQUIRED（默认）</strong></p>
 <ul>
 <li>有事务：加入当前事务</li>
@@ -1520,7 +1531,7 @@ $Proxy2
 </ul>
 </li>
 </ol>
-<h3 id="7-7-核心方法"><a href="#7-7-核心方法" class="headerlink" title="7.7 核心方法"></a>7.7 核心方法</h3><ul>
+<h3 id="5-7-核心方法"><a href="#5-7-核心方法" class="headerlink" title="5.7 核心方法"></a>5.7 核心方法</h3><ul>
 <li><code>handleExistingTransaction()</code>：处理已存在事务的情况</li>
 <li><code>suspend()</code>：挂起事务</li>
 <li><code>resume()</code>：恢复事务</li>
@@ -1812,25 +1823,30 @@ Java NIO Buffer 使用与实现原理1. Buffer 概述1.1 什么是 BufferBuffer�
         
             <div class="article col s12 m6" data-aos="fade-up">
                 <div class="article-badge right-badge text-color">
-                    下一篇&nbsp;<i class="fa fa-chevron-right"></i>
+                    本篇&nbsp;<i class="fa fa-dot-circle-o"></i>
                 </div>
                 <div class="card">
-                    <a href="/posts/103.html">
+                    <a href="/posts/104.html">
                         <div class="card-image">
                             
                                 
-                                <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="Java NIO Buffer 使用与实现原理">
+                                <img src="/medias/featureimages/15.jpg" class="responsive-img" alt="SpringBoot事务实现原理">
                             
-                            <span class="card-title">Java NIO Buffer 使用与实现原理</span>
+                            <span class="card-title">SpringBoot事务实现原理</span>
                         </div>
                     </a>
                     <div class="card-content article-content">
                         <div class="summary block-with-text">
                             
-                                📚 微服务容错与流量治理核心机制笔记时间：2025年11月20日
-一、注册中心的心跳机制：为什么需要双向通信？
+                                Spring 事务机制详解目录
+Spring @Transactional 实现原理
+Spring AOP 代理机制详解
+事务传播行为详解
+事务隔离级别
+TransactionInterceptor 实现原理
 
-客户端 → 注册中心（心跳续约）目的：证明服务实例存活，防止被误剔除。实现：客户端定期（如 Eureka 默认 30s）发送
+
+1. Spring @Tr
                             
                         </div>
                         <div class="publish-info">
@@ -1845,6 +1861,7 @@ Java NIO Buffer 使用与实现原理1. Buffer 概述1.1 什么是 BufferBuffer�
                             </span>
                         </div>
                     </div>
+
                     
                 </div>
             </div>
@@ -2009,7 +2026,7 @@ Java NIO Buffer 使用与实现原理1. Buffer 概述1.1 什么是 BufferBuffer�
             
                 
                     &nbsp;<i class="fa fa-area-chart"></i>&nbsp;站点总字数:&nbsp;<span
-                            class="white-color">12.1k</span>&nbsp;字
+                            class="white-color">11.9k</span>&nbsp;字
                 
                 
                     <span id="icp"><img src="/medias/icp.png" style="vertical-align: text-bottom;" alt="icp"/>
