@@ -4,8 +4,18 @@
 
 <head>
     <meta charset="utf-8">
-    <meta name="keywords" content="友链, 博客 模版">
-    <meta name="description" content="友链 | 事了拂身去 深藏功与名">
+    <meta name="keywords" content="Kafka vs RocketMQ 消费模式对比, 博客 模版">
+    <meta name="description" content="Kafka vs RocketMQ 消费模式对比问题为什么 Kafka 消费者、RocketMQ 消费者分别是推还是拉获取消息的，为什么有区别？
+
+一、机制本质：拉 vs “类推”（实为长轮询拉）
+
+
+消息队列
+消费模式
+实际机制说明
+
+
+">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
     <meta name="renderer" content="webkit|ie-stand|ie-comp">
@@ -14,7 +24,7 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="white"/>
-    <title>友链 | 事了拂身去 深藏功与名</title>
+    <title>Kafka vs RocketMQ 消费模式对比 | 事了拂身去 深藏功与名</title>
     <link rel="apple-touch-icon" href="/apple-touch-icon.png">
     <link rel="icon" type="image/x-icon, image/vnd.microsoft.icon" href="/favicon.ico">
     <link rel="stylesheet" type="text/css" href="/libs/awesome/css/font-awesome.min.css">
@@ -402,314 +412,310 @@
     </nav>
 
 </header>
-<div class="bg-cover pd-header about-cover">
-    <div class="container">
-        <div class="row">
-    <div class="col s10 offset-s1 m8 offset-m2 l8 offset-l2">
-        <div class="brand">
-            <div class="title center-align">
-                
-                    事了拂身去 深藏功与名
-                
-            </div>
 
-            <div class="description center-align">
-                
-                    <span id="subtitle"></span>
-                    <script src="https://cdn.jsdelivr.net/npm/typed.js"></script>
-                    <script>
-                        var typed = new Typed("#subtitle", {
-                            strings: ['博客模版项目','博客模版项目'],
-                            startDelay: 300,
-                            typeSpeed: 100,
-                            loop: true,
-                            backSpeed: 50,
-                            showCursor: true
-                        });
-                    </script>
-                
+    <script src="/libs/cryptojs/crypto-js.min.js"></script>
+    <script>
+        (function () {
+            let pwd = '';
+            if (pwd && pwd.length > 0) {
+                if (pwd !== CryptoJS.SHA256(prompt('请输入访问本文章的密码')).toString(CryptoJS.enc.Hex)) {
+                    alert('密码错误，将返回主页！');
+                    location.href = '/';
+                }
+            }
+        })();
+    </script>
+
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/24.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">Kafka vs RocketMQ 消费模式对比</h1>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
 
-    <script>
-        $('.bg-cover').css('background-image', 'url(/medias/banner/0.jpg)');
-    </script>
 
-    </div>
-</div>
+<main class="post-container content">
+
+    
+        <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
 <style>
-    .friends-container {
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
         margin-top: -100px;
-        margin-bottom: 30px;
+        visibility: hidden;
     }
 
-    .friends-container .tag-title {
-        margin-bottom: 10px;
-        color: #3C4858;
-        font-size: 1.75rem;
-        font-weight: 400;
+    #articleContent :focus {
+        outline: none;
     }
 
-    .frind-ship img {
-        border-radius: 50%;
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
     }
 
-    /* 以下是按钮样式 */
-
-    .frind-ship {
-        padding: 10px 20px;
+    .toc-widget {
+        width: 345px;
+        padding-left: 20px;
     }
 
-    .frind-ship .title {
-        display: flex;
-        align-items: center;
+    .toc-widget .toc-title {
+        margin: 35px 0 15px 0;
+        padding-left: 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
     }
 
-    .frind-ship .title div {
-        color: #fff;
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content {
+        height: calc(100vh - 250px);
+        overflow: auto;
+    }
+
+    #toc-content ol {
         padding-left: 10px;
     }
 
-    .frind-ship .title img {
-        width: 100px;
-        height: 100px;
-        flex-shrink: 0;
+    #toc-content ol li {
+        padding-left: 10px;
     }
 
-    .frind-ship .title h1 {
-        padding-bottom: 5px;
-        border-bottom: 2px solid #fff;
-        position: relative;
-        top: -15px;
-        left: 3px;
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
     }
 
-    .friend-button {
-        display: flex;
-        justify-content: center;
-        margin-bottom: -27px;
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+
+        position: absolute;
+        right: 23.5vw;
+        display: block;
     }
 
-    .friend-button a {
-        border-radius: 40px;
+    #toc-content .is-active-link {
+        color: #42b983;
     }
 
-    .friend-all .tag-post {
-        margin-bottom: 30px;
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
     }
 
-    .button-caution {
-        background-color: #FF4351;
-        border-color: #FF4351;
-        color: #FFF;
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
     }
 
-    .button {
-        font-weight: 300;
-        font-size: 16px;
-        font-family: "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", sans-serif;
-        text-decoration: none;
-        text-align: center;
-        line-height: 40px;
-        height: 40px;
-        padding: 0 40px;
-        margin: 0;
-        display: inline-block;
-        appearance: none;
-        cursor: pointer;
-        border: none;
-        -webkit-box-sizing: border-box;
-        -moz-box-sizing: border-box;
-        box-sizing: border-box;
-        -webkit-transition-property: all;
-        transition-property: all;
-        -webkit-transition-duration: .3s;
-        transition-duration: .3s;
-    }
-
-    .title {
-        margin-bottom: 0rem !important;
-    }
-
-    .card {
-        margin: 3rem 0 1rem 0 !important;
-    }
-
-    .button-glow.button-caution {
-        -webkit-animation-name: glowing-caution;
-        animation-name: glowing-caution;
-    }
-
-    @-webkit-keyframes glowing-caution {
-        from {
-            -webkit-box-shadow: 0 0 0 rgba(255, 67, 81, 0.3);
-            box-shadow: 0 0 0 rgba(255, 67, 81, 0.3);
-        }
-
-        50% {
-            -webkit-box-shadow: 0 0 20px rgba(255, 67, 81, 0.8);
-            box-shadow: 0 0 20px rgba(255, 67, 81, 0.8);
-        }
-
-        to {
-            -webkit-box-shadow: 0 0 0 rgba(255, 67, 81, 0.3);
-            box-shadow: 0 0 0 rgba(255, 67, 81, 0.3);
-        }
-    }
-
-    @keyframes glowing-caution {
-        from {
-            -webkit-box-shadow: 0 0 0 rgba(255, 67, 81, 0.3);
-            box-shadow: 0 0 0 rgba(255, 67, 81, 0.3);
-        }
-
-        50% {
-            -webkit-box-shadow: 0 0 20px rgba(255, 67, 81, 0.8);
-            box-shadow: 0 0 20px rgba(255, 67, 81, 0.8);
-        }
-
-        to {
-            -webkit-box-shadow: 0 0 0 rgba(255, 67, 81, 0.3);
-            box-shadow: 0 0 0 rgba(255, 67, 81, 0.3);
-        }
-    }
-
-    .button-caution:hover {
-        background-color: #ff7680;
-        border-color: #ff7680;
-        color: #FFF;
-        text-decoration: none;
-    }
-
-    .frind-card1 {
-        background-image: linear-gradient(to right, #4facfe 0%, #00f2fe 100%);
-    }
-
-    .frind-card2 {
-        background-image: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    .frind-card3 {
-        background-image: linear-gradient(to right, #b8cbb8 0%, #b8cbb8 0%, #b465da 0%, #cf6cc9 33%, #ee609c 66%, #ee609c 100%);
-    }
-
-    .frind-card4 {
-        background-image: linear-gradient(to right, #6a11cb 0%, #2575fc 100%);
-    }
-
-    .frind-card5 {
-        background-image: linear-gradient(to top, #c471f5 0%, #fa71cd 100%);
-    }
-
-    .frind-card6 {
-        background-image: linear-gradient(to top, #48c6ef 0%, #6f86d6 100%);
-    }
-
-    .frind-card7 {
-        background-image: linear-gradient(to top, #0ba360 0%, #3cba92 100%);
-    }
-
-    .frind-card8 {
-        background-image: linear-gradient(to top, #0c3483 0%, #a2b6df 100%, #6b8cce 100%, #a2b6df 100%);
-    }
-
-    .frind-card9 {
-        background-image: linear-gradient(to right, #ff758c 0%, #ff7eb3 100%);
-    }
-
-    .frind-card10 {
-        background-image: linear-gradient(to top, #f77062 0%, #fe5196 100%);
-    }
-
-    article .card {
-        overflow: visible !important;
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
     }
 </style>
-
-<main class="content">
-    <div class="container friends-container">
-        <div class="card">
-            <div class="card-content">
-                <div class="tag-title center-align">
-                    <i class="fa fa-address-book"></i>&nbsp;&nbsp;友链
-                </div>
-                <article id="friends-link">
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
                     
-                        
-                        <div class="row tags-posts friend-all">
-                            
-                                
-                                <div class="col s12 m6 l4 friend-div" data-aos="zoom-in-up">
-                                    <div class="card frind-card1">
-                                        <div class="frind-ship">
-                                            <div class="title">
-                                                <img src="https://sitoi.cn/medias/avatars/avatar.jpg" alt="img">
-                                                <div>
-                                                    <h1 class="friend-name">Sitoi</h1>
-                                                    <p style="position: relative;top: -35px;">活到老，学到老</p>
-                                                </div>
-                                            </div>
-                                            <div class="friend-button">
-                                                <a href="https://www.cnblogs.com/sitoi/" target="_blank"
-                                                   class="button button-glow button-rounded button-caution">
-                                                    访问博客园
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            
-                                
-                                <div class="col s12 m6 l4 friend-div" data-aos="zoom-in-up">
-                                    <div class="card frind-card2">
-                                        <div class="frind-ship">
-                                            <div class="title">
-                                                <img src="https://sitoi.cn/medias/avatars/avatar.jpg" alt="img">
-                                                <div>
-                                                    <h1 class="friend-name">Sitoi</h1>
-                                                    <p style="position: relative;top: -35px;">活到老，学到老</p>
-                                                </div>
-                                            </div>
-                                            <div class="friend-button">
-                                                <a href="https://sitoi.cn/" target="_blank"
-                                                   class="button button-glow button-rounded button-caution">
-                                                    访问博客
-                                                </a>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            
+                        <div class="article-tag">
+                            <span class="chip bg-color">无标签</span>
                         </div>
                     
-                </article>
+                </div>
+                <div class="col s5 right-align">
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                    <div class="post-date info-break-policy">
+                        <i class="fa fa-calendar-minus-o fa-fw"></i>发布日期:&nbsp;&nbsp;
+                        2025-01-15
+                    </div>
+                
+
+                
+                    <div class="post-date info-break-policy">
+                        <i class="fa fa-calendar-check-o fa-fw"></i>更新日期:&nbsp;&nbsp;
+                        2025-12-03
+                    </div>
+                
+
+                
+                    <div class="info-break-policy">
+                        <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
+                        969
+                    </div>
+                
+
+                
+                    <div class="info-break-policy">
+                        <i class="fa fa-clock-o fa-fw"></i>阅读时长:&nbsp;&nbsp;
+                        3 分
+                    </div>
+                
+
+                
+                    <div id="busuanzi_container_page_pv" class="info-break-policy">
+                        <i class="fa fa-eye fa-fw"></i>阅读次数:&nbsp;&nbsp;
+                        <span id="busuanzi_value_page_pv"></span>
+                    </div>
+                
             </div>
         </div>
-        <div class="card">
-            <div class="card-content">
-                <h3 id="感谢在建站中给我提供帮助的各位大大！"><a href="#感谢在建站中给我提供帮助的各位大大！" class="headerlink" title="感谢在建站中给我提供帮助的各位大大！"></a>感谢在建站中给我提供帮助的各位大大！</h3><h3 id="也欢迎各位大神交换友链！"><a href="#也欢迎各位大神交换友链！" class="headerlink" title="也欢迎各位大神交换友链！"></a>也欢迎各位大神交换友链！</h3><br>
-
-<p><strong>友链格式①：</strong></p>
-<pre class="line-numbers language-json"><code class="language-json"><span class="token punctuation">{</span>
-    <span class="token property">"name"</span><span class="token operator">:</span> <span class="token string">"Sitoi"</span><span class="token punctuation">,</span>
-    <span class="token property">"avatar"</span><span class="token operator">:</span> <span class="token string">"https://github.com/Sitoi.png"</span><span class="token punctuation">,</span>
-    <span class="token property">"url"</span><span class="token operator">:</span> <span class="token string">"https://sitoi.cn/"</span><span class="token punctuation">,</span>
-    <span class="token property">"introduction"</span><span class="token operator">:</span> <span class="token string">"爬虫工程师的进阶之旅"</span><span class="token punctuation">,</span>
-    <span class="token property">"title"</span><span class="token operator">:</span> <span class="token string">"访问主页"</span>
-<span class="token punctuation">}</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
-<br>
-
-<p><strong>友链格式②：</strong></p>
-<pre class="line-numbers language-text"><code class="language-text">博客名字： Sitoi
-博客地址： https://sitoi.cn/
-博客头像： https://github.com/Sitoi.png
-博客简介： 爬虫工程师的进阶之旅<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
-<blockquote>
-<p>注：如果需要交换友链，请在下面留言</p>
-</blockquote>
+        <hr class="clearfix">
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1 id="Kafka-vs-RocketMQ-消费模式对比"><a href="#Kafka-vs-RocketMQ-消费模式对比" class="headerlink" title="Kafka vs RocketMQ 消费模式对比"></a>Kafka vs RocketMQ 消费模式对比</h1><h2 id="问题"><a href="#问题" class="headerlink" title="问题"></a>问题</h2><p>为什么 Kafka 消费者、RocketMQ 消费者分别是推还是拉获取消息的，为什么有区别？</p>
+<hr>
+<h2 id="一、机制本质：拉-vs-“类推”（实为长轮询拉）"><a href="#一、机制本质：拉-vs-“类推”（实为长轮询拉）" class="headerlink" title="一、机制本质：拉 vs “类推”（实为长轮询拉）"></a>一、机制本质：拉 vs “类推”（实为长轮询拉）</h2><table>
+<thead>
+<tr>
+<th>消息队列</th>
+<th>消费模式</th>
+<th>实际机制说明</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>Kafka</strong></td>
+<td>纯 Pull（拉）</td>
+<td>消费者主动向 Broker 发起 fetch 请求拉取消息，Broker 立即返回（有消息就返回，无消息也可能立即返回空）。</td>
+</tr>
+<tr>
+<td><strong>RocketMQ</strong></td>
+<td>Push-like Pull（类推）</td>
+<td>表面是 Push（如 DefaultMQPushConsumer），底层是<strong>长轮询（Long Polling）</strong>：消费者发起拉取请求后，若无消息，Broker 会挂起该请求最多 15 秒，直到有新消息到达或超时才响应。</td>
+</tr>
+</tbody></table>
+<h3 id="关键区别"><a href="#关键区别" class="headerlink" title="关键区别"></a>关键区别</h3><ul>
+<li><strong>Kafka</strong> 是”主动拉，立即回”；</li>
+<li><strong>RocketMQ</strong> 是”主动拉，但等一等再回”。</li>
+</ul>
+<hr>
+<h2 id="二、为什么这样设计？——背后的设计哲学"><a href="#二、为什么这样设计？——背后的设计哲学" class="headerlink" title="二、为什么这样设计？——背后的设计哲学"></a>二、为什么这样设计？——背后的设计哲学</h2><h3 id="1-Kafka：极致吞吐-批处理优先"><a href="#1-Kafka：极致吞吐-批处理优先" class="headerlink" title="1. Kafka：极致吞吐 + 批处理优先"></a>1. Kafka：极致吞吐 + 批处理优先</h3><p><strong>目标场景</strong>：日志聚合、流式处理、高吞吐数据管道。</p>
+<p><strong>Pull 模式优势</strong>：</p>
+<ul>
+<li><strong>消费者完全控制节奏</strong>：可批量拉取（如一次拉 1MB 数据），极大提升吞吐。</li>
+<li><strong>天然背压（Backpressure）</strong>：消费慢就少拉，避免被压垮。</li>
+<li><strong>简化 Broker</strong>：Broker 不需维护消费者状态、不需判断是否推送，架构更轻量。</li>
+</ul>
+<p><strong>代价</strong>：可能频繁空轮询（但 Kafka 通过 <code>fetch.min.bytes</code> 和 <code>fetch.wait.max.ms</code> 参数缓解）。</p>
+<p><strong>Kafka 的设计信条</strong>：”把控制权交给消费者”。</p>
+<hr>
+<h3 id="2-RocketMQ：低延迟-高可用生产级消息"><a href="#2-RocketMQ：低延迟-高可用生产级消息" class="headerlink" title="2. RocketMQ：低延迟 + 高可用生产级消息"></a>2. RocketMQ：低延迟 + 高可用生产级消息</h3><p><strong>目标场景</strong>：金融交易、订单系统、需要快速响应的业务消息。</p>
+<p><strong>长轮询（Long Polling）的优势</strong>：</p>
+<ul>
+<li><strong>接近 Push 的实时性</strong>：消息一到，立刻返回给消费者，端到端延迟低（毫秒级）。</li>
+<li><strong>避免无效轮询</strong>：相比 Kafka 纯 Pull，减少”无消息时频繁请求”的网络开销。</li>
+<li><strong>仍保留 Pull 的可控性</strong>：消费者可控制拉取批次、线程数、流控等。</li>
+</ul>
+<p><strong>为何不真 Push？</strong></p>
+<p>真正的 Push 模式（如 RabbitMQ）要求 Broker 主动维护每个消费者的连接状态和消费能力，在大规模集群中会导致 Broker 负载过高、难以扩展。</p>
+<p><strong>RocketMQ 的设计信条</strong>：”在 Pull 的基础上模拟 Push 体验，平衡实时性与可控性”。</p>
+<hr>
+<h2 id="三、对比总结：为什么有区别？"><a href="#三、对比总结：为什么有区别？" class="headerlink" title="三、对比总结：为什么有区别？"></a>三、对比总结：为什么有区别？</h2><table>
+<thead>
+<tr>
+<th>维度</th>
+<th>Kafka（Pull）</th>
+<th>RocketMQ（Long Polling）</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>核心目标</strong></td>
+<td>高吞吐、批量处理、持久化日志</td>
+<td>低延迟、可靠投递、业务消息</td>
+</tr>
+<tr>
+<td><strong>实时性</strong></td>
+<td>较高（依赖拉取间隔）</td>
+<td>极高（消息到达即推）</td>
+</tr>
+<tr>
+<td><strong>资源消耗</strong></td>
+<td>消费者可能空轮询</td>
+<td>减少空轮询，Broker 挂起连接</td>
+</tr>
+<tr>
+<td><strong>系统复杂度</strong></td>
+<td>Broker 简单，消费者逻辑复杂</td>
+<td>Broker 需支持请求挂起，稍复杂</td>
+</tr>
+<tr>
+<td><strong>背压控制</strong></td>
+<td>天然支持（消费者自己决定拉多少）</td>
+<td>通过流控参数（如 pullBatchSize）实现</td>
+</tr>
+<tr>
+<td><strong>适用场景</strong></td>
+<td>大数据、流计算、日志收集</td>
+<td>电商、金融、事务消息等强业务场景</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="四、补充：其他-MQ-的对比"><a href="#四、补充：其他-MQ-的对比" class="headerlink" title="四、补充：其他 MQ 的对比"></a>四、补充：其他 MQ 的对比</h2><table>
+<thead>
+<tr>
+<th>消息队列</th>
+<th>模式</th>
+<th>特点</th>
+</tr>
+</thead>
+<tbody><tr>
+<td><strong>RabbitMQ</strong></td>
+<td>Push（推）</td>
+<td>Broker 主动推送，需 prefetch 控制流量，易压垮消费者</td>
+</tr>
+<tr>
+<td><strong>ActiveMQ</strong></td>
+<td>支持 Push/Pull</td>
+<td>配置灵活，但 Push 模式需谨慎处理背压</td>
+</tr>
+<tr>
+<td><strong>Pulsar</strong></td>
+<td>Pull</td>
+<td>类似 Kafka，但支持分层存储和多租户</td>
+</tr>
+</tbody></table>
+<hr>
+<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>Kafka 和 RocketMQ 的消费模式差异，本质上是不同业务需求驱动下的架构权衡：</p>
+<ul>
+<li><strong>Kafka 选择 Pull</strong>：为了最大化吞吐和简化 Broker，适合”数据管道”场景；</li>
+<li><strong>RocketMQ 选择长轮询</strong>：为了兼顾低延迟与可控性，适合”业务消息”场景。</li>
+</ul>
+<p>两者没有绝对优劣，只有是否匹配你的业务需求。理解其设计动机，才能在技术选型和调优时做出正确决策。</p>
 <script>
         document.querySelectorAll('.github-emoji')
           .forEach(el => {
@@ -730,21 +736,177 @@
           });
       </script>
             </div>
-        </div>
-        <div class="card">
+            <hr/>
 
             
 
-            
 
-            
 
-            
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            <span class="chip bg-color">无标签</span>
+                        </div>
+                    
+                </div>
+                <div class="post_share"
+                     style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+    
+        <div class="social-share" data-sites="wechat,qq,weibo,twitter,facebook,linkedin"
+             data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+        <script src="/libs/share/js/social-share.min.js"></script>
+    
 
-            
+    
 
+</div>
+
+                </div>
+            </div>
             
                 <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.4rem;
+        line-height: 38px;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform: scale(1.3);
+        -webkit-transform: scale(1.3);
+        -o-transform: scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fa fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力!</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.jpg" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <style>
     .valine-card {
         margin: 1.5rem auto;
     }
@@ -776,10 +938,99 @@
         md: true,
     });
 </script>
-            
-        </div>
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+            <div class="article col s12 m6" data-aos="fade-up">
+                <div class="article-badge left-badge text-color">
+                    <i class="fa fa-chevron-left"></i>&nbsp;上一篇</div>
+                <div class="card">
+                    <a href="/posts/107.html">
+                        <div class="card-image">
+                            
+                                
+                                <img src="/medias/featureimages/2.jpg" class="responsive-img" alt="Kafka 核心机制详解">
+                            
+                            <span class="card-title">Kafka 核心机制详解</span>
+                        </div>
+                    </a>
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                Kafka 核心机制详解目录
+核心概念：HW、LW、LEO、LSO
+副本同步机制
+Offset 提交机制
+消息重复消费和丢失场景
+最佳实践
+
+
+核心概念：HW、LW、LEO、LSO1. LEO (Log End Offset) - 日志末端
+                            
+                        </div>
+                        <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="fa fa-clock-o fa-fw icon-date"></i>2025-01-15
+                        </span>
+                            <span class="publish-author">
+                                
+                                    <i class="fa fa-user fa-fw"></i>
+                                    Sitoi
+                                
+                            </span>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        
+        
+            <div class="article col s12 m6" data-aos="fade-up">
+                <div class="article-badge right-badge text-color">
+                    下一篇&nbsp;<i class="fa fa-chevron-right"></i>
+                </div>
+                <div class="card">
+                    <a href="/posts/102.html">
+                        <div class="card-image">
+                            
+                                
+                                <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="Java NIO Buffer 使用与实现原理">
+                            
+                            <span class="card-title">Java NIO Buffer 使用与实现原理</span>
+                        </div>
+                    </a>
+                    <div class="card-content article-content">
+                        <div class="summary block-with-text">
+                            
+                                这是第一篇博客
+Java NIO Buffer 使用与实现原理1. Buffer 概述1.1 什么是 BufferBuffer（缓冲区）是 Java NIO 中用于与通道（Channel）进行数据交互的对象。它是一个线性的、有限的数据容器，
+                            
+                        </div>
+                        <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="fa fa-clock-o fa-fw icon-date"></i>2023-10-08
+                            </span>
+                            <span class="publish-author">
+                                
+                                    <i class="fa fa-user fa-fw"></i>
+                                    demus
+                                
+                            </span>
+                        </div>
+                    </div>
+                    
+                </div>
+            </div>
+        
     </div>
-</main>
+</article>
+</div>
+
+
 
 
 <!-- 代码块功能依赖 -->
@@ -806,20 +1057,110 @@
         }
     </style>
 
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget">
+            <div class="toc-title"><i class="fa fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
 
+<!-- TOC 悬浮按钮. -->
+
+    <div id="floating-toc-btn" class="hide-on-med-and-down">
+        <a class="btn-floating btn-large bg-color">
+            <i class="fa fa-list"></i>
+        </a>
+    </div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
 <script>
     $(function () {
-        $('#friends-link').masonry({
-            itemSelector: '.friend-div'
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            // headingsOffset: -205,
+            headingSelector: 'h2, h3, h4, h5'
         });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4, h5').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换 TOC 目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
     });
 </script>
+    
+
+</main>
+
+
 <footer class="page-footer bg-color">
     <div class="container row center-align">
         <div class="col s12 m8 l8 copy-right">
             Copyright&nbsp;&copy;
             <span id="year">2018</span>
-            <a href="/about" rel="external nofollow noreferrer">zhsong</a>
+            <a href="/about" rel="external nofollow noreferrer">Sitoi</a>
             |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
             |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
             <br>
