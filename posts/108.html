@@ -569,21 +569,21 @@
                 
                     <div class="post-date info-break-policy">
                         <i class="fa fa-calendar-check-o fa-fw"></i>更新日期:&nbsp;&nbsp;
-                        2025-12-03
+                        2025-12-09
                     </div>
                 
 
                 
                     <div class="info-break-policy">
                         <i class="fa fa-file-word-o fa-fw"></i>文章字数:&nbsp;&nbsp;
-                        969
+                        1.9k
                     </div>
                 
 
                 
                     <div class="info-break-policy">
                         <i class="fa fa-clock-o fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                        3 分
+                        7 分
                     </div>
                 
 
@@ -710,7 +710,98 @@
 </tr>
 </tbody></table>
 <hr>
-<h2 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h2><p>Kafka 和 RocketMQ 的消费模式差异，本质上是不同业务需求驱动下的架构权衡：</p>
+<h2 id="五、Kafka-vs-RocketMQ-事务消息对比"><a href="#五、Kafka-vs-RocketMQ-事务消息对比" class="headerlink" title="五、Kafka vs RocketMQ 事务消息对比"></a>五、Kafka vs RocketMQ 事务消息对比</h2><p>这是一个非常经典的对比面试题，也是实际架构选型中的关键点。RocketMQ 和 Kafka 虽然都支持”事务消息”，但它们解决的业务痛点和底层实现完全不同。</p>
+<p><strong>核心区别一句话总结：</strong></p>
+<ul>
+<li><strong>Kafka 事务</strong>：侧重于 <strong>流处理（Exactly-Once）</strong>，保证跨分区写入的原子性（”要么全写成功，要么全失败”）。</li>
+<li><strong>RocketMQ 事务</strong>：侧重于 <strong>分布式事务（最终一致性）</strong>，保证”本地数据库事务”与”发送消息”的原子性（”本地这笔钱扣了，消息一定能发出去”）。</li>
+</ul>
+<hr>
+<h3 id="1-RocketMQ-事务消息原理（半消息-反查机制）"><a href="#1-RocketMQ-事务消息原理（半消息-反查机制）" class="headerlink" title="1. RocketMQ 事务消息原理（半消息 + 反查机制）"></a>1. RocketMQ 事务消息原理（半消息 + 反查机制）</h3><p>RocketMQ 的事务主要用于解决 <strong>“数据库更新 + 消息发送”</strong> 的原子性问题。</p>
+<h4 id="核心流程（三阶段）："><a href="#核心流程（三阶段）：" class="headerlink" title="核心流程（三阶段）："></a>核心流程（三阶段）：</h4><ol>
+<li><p><strong>发送半消息 (Half Message)</strong>：</p>
+<ul>
+<li>Producer 发送一条消息给 Broker。</li>
+<li><strong>关键点</strong>：Broker 收到后，把消息存到一个特殊的内部 Topic（<code>RMQ_SYS_TRANS_HALF_TOPIC</code>），而不是用户目标 Topic。</li>
+<li><strong>结果</strong>：Consumer <strong>看不见</strong> 这条消息。</li>
+</ul>
+</li>
+<li><p><strong>执行本地事务 (Execute Local Transaction)</strong>：</p>
+<ul>
+<li>Producer 收到半消息发送成功的确认后，开始执行本地业务逻辑（比如：数据库扣款 <code>UPDATE account SET balance = balance - 100</code>）。</li>
+</ul>
+</li>
+<li><p><strong>提交/回滚 (Commit/Rollback)</strong>：</p>
+<ul>
+<li><strong>如果本地事务成功</strong>：Producer 向 Broker 发送 <code>COMMIT</code> 指令。Broker 会把消息从半消息 Topic 拿出来，写入用户真正的 Topic，Consumer 就能看见了。</li>
+<li><strong>如果本地事务失败</strong>：Producer 向 Broker 发送 <code>ROLLBACK</code> 指令。Broker 删除半消息，Consumer 永远看不见。</li>
+</ul>
+</li>
+</ol>
+<h4 id="核心杀手锏：事务回查-Check-Local-Transaction"><a href="#核心杀手锏：事务回查-Check-Local-Transaction" class="headerlink" title="核心杀手锏：事务回查 (Check Local Transaction)"></a>核心杀手锏：事务回查 (Check Local Transaction)</h4><p>如果第 3 步因为网络断了，Producer 没能发出 Commit/Rollback 怎么办？RocketMQ 有<strong>“回查机制”</strong>：</p>
+<ul>
+<li>Broker 发现一条半消息呆了很久（默认 60s）没人认领。</li>
+<li>Broker 主动去问 Producer：”哎，刚才那条消息对应的事务到底成功没？”</li>
+<li>Producer 查询本地数据库状态，告诉 Broker 结果。</li>
+</ul>
+<hr>
+<h3 id="2-Kafka-事务消息原理（两阶段提交-控制标记）"><a href="#2-Kafka-事务消息原理（两阶段提交-控制标记）" class="headerlink" title="2. Kafka 事务消息原理（两阶段提交 + 控制标记）"></a>2. Kafka 事务消息原理（两阶段提交 + 控制标记）</h3><p>Kafka 的事务主要用于 <strong>Consume-Process-Produce</strong> 场景（比如从 Topic A 读，处理后写 Topic B）。</p>
+<h4 id="核心流程："><a href="#核心流程：" class="headerlink" title="核心流程："></a>核心流程：</h4><ol>
+<li><strong>开启事务</strong>：Producer 向 Coordinator 注册事务。</li>
+<li><strong>正常发送消息</strong>：<ul>
+<li>Producer 把消息发给 Broker。</li>
+<li><strong>关键点</strong>：消息<strong>直接写入</strong>了用户目标 Topic，但是带有”未提交”状态。</li>
+<li><strong>结果</strong>：Consumer 如果用 <code>read_committed</code> 模式，会过滤掉它，暂时<strong>看不见</strong>。</li>
+</ul>
+</li>
+<li><strong>提交事务</strong>：<ul>
+<li>Producer 发送 <code>EndTxnRequest</code>。</li>
+<li>Coordinator 向所有涉及的分区写入一条 <strong>Control Marker (Commit)</strong>。</li>
+<li><strong>结果</strong>：Consumer 读到 Commit Marker 后，认为前面的消息有效，放行给业务处理。</li>
+</ul>
+</li>
+</ol>
+<hr>
+<h3 id="3-深度对比总结表"><a href="#3-深度对比总结表" class="headerlink" title="3. 深度对比总结表"></a>3. 深度对比总结表</h3><table>
+<thead>
+<tr>
+<th align="left">特性</th>
+<th align="left">RocketMQ 事务消息</th>
+<th align="left">Kafka 事务消息</th>
+</tr>
+</thead>
+<tbody><tr>
+<td align="left"><strong>核心解决场景</strong></td>
+<td align="left"><strong>本地 DB 事务 + 发消息</strong> 的一致性<br>(如：支付成功后发短信)</td>
+<td align="left"><strong>跨分区写入</strong> 的原子性<br>(Stream 处理：读 A -&gt; 算 -&gt; 写 B)</td>
+</tr>
+<tr>
+<td align="left"><strong>消息可见性</strong></td>
+<td align="left"><strong>半消息机制</strong><br>提交前存在内部 Topic，对 Consumer <strong>物理不可见</strong></td>
+<td align="left"><strong>过滤机制</strong><br>提交前已存在用户 Topic，对 Consumer <strong>逻辑过滤</strong></td>
+</tr>
+<tr>
+<td align="left"><strong>对 Consumer 影响</strong></td>
+<td align="left"><strong>无感</strong><br>Consumer 不需要改代码，就像收普通消息一样</td>
+<td align="left"><strong>强感知</strong><br>Consumer 必须配置 <code>read_committed</code>，否则读到脏数据</td>
+</tr>
+<tr>
+<td align="left"><strong>异常处理</strong></td>
+<td align="left"><strong>Broker 主动回查</strong><br>防止 Producer 挂掉导致事务悬空</td>
+<td align="left"><strong>依赖 Coordinator</strong><br>Producer 挂掉需等待事务超时或 Zombie Fencing</td>
+</tr>
+<tr>
+<td align="left"><strong>性能损耗</strong></td>
+<td align="left"><strong>较高</strong><br>多了一次写半消息、可能的定时回查</td>
+<td align="left"><strong>较低</strong><br>仅多写少量 Control Marker</td>
+</tr>
+</tbody></table>
+<h3 id="4-选型建议"><a href="#4-选型建议" class="headerlink" title="4. 选型建议"></a>4. 选型建议</h3><ul>
+<li><strong>如果你在做业务系统</strong>（如电商交易、支付），需要保证”数据库改了，消息必须发出去”，<strong>RocketMQ</strong> 是绝对的首选，它的回查机制是业界的杀手锏。</li>
+<li><strong>如果你在做大数据流处理</strong>（如 Flink/Kafka Streams），需要保证”端到端精确一次”，<strong>Kafka</strong> 的事务机制是标准答案。</li>
+</ul>
+<hr>
+<h2 id="六、结论"><a href="#六、结论" class="headerlink" title="六、结论"></a>六、结论</h2><p>Kafka 和 RocketMQ 的消费模式差异，本质上是不同业务需求驱动下的架构权衡：</p>
 <ul>
 <li><strong>Kafka 选择 Pull</strong>：为了最大化吞吐和简化 Broker，适合”数据管道”场景；</li>
 <li><strong>RocketMQ 选择长轮询</strong>：为了兼顾低延迟与可控性，适合”业务消息”场景。</li>
@@ -963,13 +1054,14 @@
                             
                                 Kafka 核心机制详解目录
 核心概念：HW、LW、LEO、LSO
+主题创建流程
 副本同步机制
 Offset 提交机制
 消息重复消费和丢失场景
 最佳实践
 
 
-核心概念：HW、LW、LEO、LSO1. LEO (Log End Offset) - 日志末端
+核心概念：HW、LW、LEO、LSO1. LEO (Log End Offset)
                             
                         </div>
                         <div class="publish-info">
@@ -994,20 +1086,27 @@ Offset 提交机制
                     下一篇&nbsp;<i class="fa fa-chevron-right"></i>
                 </div>
                 <div class="card">
-                    <a href="/posts/102.html">
+                    <a href="/posts/104.html">
                         <div class="card-image">
                             
                                 
-                                <img src="/medias/featureimages/11.jpg" class="responsive-img" alt="Java NIO Buffer 使用与实现原理">
+                                <img src="/medias/featureimages/15.jpg" class="responsive-img" alt="SpringBoot事务实现原理">
                             
-                            <span class="card-title">Java NIO Buffer 使用与实现原理</span>
+                            <span class="card-title">SpringBoot事务实现原理</span>
                         </div>
                     </a>
                     <div class="card-content article-content">
                         <div class="summary block-with-text">
                             
-                                这是第一篇博客
-Java NIO Buffer 使用与实现原理1. Buffer 概述1.1 什么是 BufferBuffer（缓冲区）是 Java NIO 中用于与通道（Channel）进行数据交互的对象。它是一个线性的、有限的数据容器，
+                                Spring 事务机制详解目录
+Spring @Transactional 实现原理
+Spring AOP 代理机制详解
+事务传播行为详解
+事务隔离级别
+TransactionInterceptor 实现原理
+
+
+1. Spring @Tr
                             
                         </div>
                         <div class="publish-info">
@@ -1186,7 +1285,7 @@ Java NIO Buffer 使用与实现原理1. Buffer 概述1.1 什么是 BufferBuffer�
             
                 
                     &nbsp;<i class="fa fa-area-chart"></i>&nbsp;站点总字数:&nbsp;<span
-                            class="white-color">46.5k</span>&nbsp;字
+                            class="white-color">53.1k</span>&nbsp;字
                 
                 
                     <span id="icp"><img src="/medias/icp.png" style="vertical-align: text-bottom;" alt="icp"/>
